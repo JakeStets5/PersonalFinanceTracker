@@ -1,4 +1,5 @@
 ﻿using PersonalFinanceTracker.Backend.Repositories;
+using PersonalFinanceTracker.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -47,12 +48,19 @@ namespace PersonalFinanceTracker.Views
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+
         private void SignUpLink_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
-            SignUpWindow signUpWindow = new SignUpWindow(_userRepository);
+
+            // Create the SignUpViewModel and pass the UserRepository
+            var signUpViewModel = new SignUpViewModel(_userRepository);
+
+            SignUpWindow signUpWindow = new SignUpWindow(signUpViewModel);
+            signUpWindow.DataContext = signUpViewModel; // Bind the ViewModel to the Window's DataContext
+
             signUpWindow.ShowDialog();
-            
+
         }   
 
         private void PasswordField_PasswordChanged(object sender, RoutedEventArgs e)

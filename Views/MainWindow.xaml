@@ -83,7 +83,7 @@
                             <ControlTemplate TargetType="RadioButton">
                                 <Border x:Name="Border" CornerRadius="4" Padding="3" Background="{TemplateBinding Background}">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Image Width="16" Height="16" Source="../Assets/Images/NavMenuIcons/HomeIconWhite.png" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                        <Image Width="16" Height="16" Source="../Assets/Images/NavMenuIcons/home_icon_white.png" VerticalAlignment="Center" Margin="0,0,5,0" />
                                         <TextBlock Text="{TemplateBinding Content}" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
@@ -126,7 +126,7 @@
                             <ControlTemplate TargetType="RadioButton">
                                 <Border x:Name="Border" Padding="3" CornerRadius="4" Background="{TemplateBinding Background}">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Image Width="16" Height="16" Source="../Assets/Images/NavMenuIcons/SpendingForecastIconWhite.png" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                        <Image Width="16" Height="16" Source="../Assets/Images/NavMenuIcons/spending_forecast_icon_white.png" VerticalAlignment="Center" Margin="0,0,5,0" />
                                         <TextBlock Text="{TemplateBinding Content}" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
@@ -169,7 +169,7 @@
                             <ControlTemplate TargetType="RadioButton">
                                 <Border x:Name="Border" Padding="3" CornerRadius="4" Background="{TemplateBinding Background}">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Image Width="16" Height="16" Source="../Assets/Images/NavMenuIcons/BudgetIconWhite.png" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                        <Image Width="16" Height="16" Source="../Assets/Images/NavMenuIcons/budget_icon_white.png" VerticalAlignment="Center" Margin="0,0,5,0" />
                                         <TextBlock Text="{TemplateBinding Content}" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
@@ -212,7 +212,7 @@
                             <ControlTemplate TargetType="RadioButton">
                                 <Border x:Name="Border" Padding="3" CornerRadius="4" Background="{TemplateBinding Background}">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Image Width="16" Height="16" Source="../Assets/Images/NavMenuIcons/TransactionIconWhite.png" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                        <Image Width="16" Height="16" Source="../Assets/Images/NavMenuIcons/transaction_icon_white.png" VerticalAlignment="Center" Margin="0,0,5,0" />
                                         <TextBlock Text="{TemplateBinding Content}" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
@@ -255,7 +255,7 @@
                             <ControlTemplate TargetType="RadioButton">
                                 <Border x:Name="Border" Padding="3" CornerRadius="4" Background="{TemplateBinding Background}">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Image Width="16" Height="16" Source="../Assets/Images/NavMenuIcons/FinancialReportIconWhite.png" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                        <Image Width="16" Height="16" Source="../Assets/Images/NavMenuIcons/financial_reporting_icon_white.png" VerticalAlignment="Center" Margin="0,0,5,0" />
                                         <TextBlock Text="{TemplateBinding Content}" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>

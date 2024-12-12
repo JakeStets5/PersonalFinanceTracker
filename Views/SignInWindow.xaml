@@ -130,7 +130,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height=".5*" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -168,7 +168,7 @@
         </StackPanel>
 
         <!-- Sign In Button -->
-        <Button x:Name="SignInButton" Grid.Row="2" Content="Sign In" Foreground="White" Background="#899878" Click="SignInButton_Click"/>
+        <Button x:Name="SignInButton" Height="35" Grid.Row="2" Content="Sign In" Foreground="White" Background="#899878" Click="SignInButton_Click"/>
 
         <!-- Sign Up Link -->
         <TextBlock Grid.Row="3" Text="Don't have an account? Sign Up" 

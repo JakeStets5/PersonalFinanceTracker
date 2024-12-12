@@ -3,15 +3,18 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:local="clr-namespace:PersonalFinanceTracker.Views"
         xmlns:uiscripts="clr-namespace:PersonalFinanceTracker.UIScripts"
         mc:Ignorable="d"
-            Height="475" Width="350"
+            Height="525" Width="425"
     Background="#31493C">
     <!-- Change Background Color -->
     <Window.Resources>
         <uiscripts:TextToVisibilityConverter x:Key="TextToVisibilityConverter" />
-        <!-- Username Field Style -->
+		<BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+
+		<!-- Username Field Style -->
         <Style TargetType="TextBox">
             <!-- Default properties -->
             <Setter Property="Foreground" Value="Black" />
@@ -88,7 +91,7 @@
             <Setter Property="Foreground" Value="White" />
             <Setter Property="FontFamily" Value="Montserrat" />
             <Setter Property="FontSize" Value="14" />
-            <Setter Property="Background" Value="#5A1807" />
+            <Setter Property="Background" Value="Transparent" />
             <!-- Button Background Color -->
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="Padding" Value="10" />
@@ -130,11 +133,15 @@
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height=".8*" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -142,13 +149,33 @@
         </Grid.ColumnDefinitions>
         
         <!-- Error Message -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,10">
-            <TextBlock x:Name="ErrorField" Text=""/>
-        </StackPanel>
-        
+		<StackPanel Grid.Row="0">
+			<TextBlock x:Name="UsernameErrorField" Text="Username error" TextDecorations="None"
+                       Visibility="Collapsed"/>
+		</StackPanel>
+
+		<StackPanel Grid.Row="1">
+			<TextBlock x:Name="EmailErrorField" Text="Email error" TextDecorations="None"
+                       Visibility="Collapsed"/>
+		</StackPanel>
+
+		<StackPanel Grid.Row="2">
+			<TextBlock x:Name="ConfirmPassErrorField" Text="Confirm Password error" TextDecorations="None"
+                       Visibility="Collapsed"/>
+		</StackPanel>
+
+		<StackPanel Grid.Row="3">
+			<TextBlock x:Name="BadPassErrorField" Text="Password error" TextDecorations="None"
+                       Visibility="Collapsed"/>
+		</StackPanel>
+		
+		<StackPanel Grid.Row="4">
+			<TextBlock x:Name="BadPassErrorField2" Text="Password error" TextDecorations="None"
+                       Visibility="Collapsed"/>
+		</StackPanel>
 
         <!-- Username Field -->
-        <StackPanel Grid.Row="1" Margin="0,0,0,10">
+        <StackPanel Grid.Row="5" Margin="0,0,0,10">
             <Label Content="Username*" />
             <Grid>
                 <TextBox x:Name="UsernameField" />
@@ -162,7 +189,7 @@
         </StackPanel>
 
         <!-- Email Field -->
-        <StackPanel Grid.Row="2" Margin="0,0,0,10">
+        <StackPanel Grid.Row="6" Margin="0,0,0,10">
             <Label Content="Email*" />
             <Grid>
                 <TextBox x:Name="EmailField" />
@@ -175,46 +202,94 @@
             </Grid>
         </StackPanel>
 
-        <!-- Password Field -->
-        <StackPanel Grid.Row="3" Margin="0,0,0,10">
-            <Label Content="Password*" />
-            <Grid>
-                <!-- Password Box -->
-                <PasswordBox x:Name="PasswordField" PasswordChanged="PasswordField_PasswordChanged" />
+		<!-- Password Field -->
+		<StackPanel Grid.Row="7" Margin="0,0,0,10" Orientation="Vertical">
+			<Label Content="Password*" />
+			<Grid>
+				<!-- Password Box -->
+                <PasswordBox x:Name="PasswordField">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="PasswordChanged">
+                            <i:InvokeCommandAction Command="{Binding PasswordChangedCommand}" 
+                                      CommandParameter="{Binding ElementName=PasswordField, Path=Password}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </PasswordBox>
 
-                <TextBlock x:Name="PasswordPlaceholderText"  Text="Enter your password"
-                           Foreground="Black"
-                           Margin="10,0,0,0"
-                           IsHitTestVisible="False"
-                           VerticalAlignment="Center"
-                           Visibility="{Binding PasswordText, Converter={StaticResource TextToVisibilityConverter}}" />
-            </Grid>
-            <TextBlock x:Name="PasswordRequirementTextBlock" Text="Must be at least 8 characters long, contain one number," TextDecorations="None" Foreground="White" VerticalAlignment="Bottom" />
-            <TextBlock x:Name="PasswordRequirementTextBlock2" Text="uppercase letter, and symbol: !@#$%^*" TextDecorations="None" Foreground="White" VerticalAlignment="Bottom" />
 
-        </StackPanel>
+                <!-- Placeholder Text -->
+				<TextBlock x:Name="PasswordPlaceholderText"  Text="Enter your password"
+                   Foreground="Black"
+                   Margin="10,0,0,0"
+                   IsHitTestVisible="False"
+                   VerticalAlignment="Center"
+                   Visibility="{Binding PasswordText, Converter={StaticResource TextToVisibilityConverter}}" />
 
-        <!-- Re-enter Password Field -->
-        <StackPanel Grid.Row="4" Margin="0,0,0,10">
-            <Label Content="Re-enter Password*" />
-            <Grid>
-                <!-- Password Box -->
-                <PasswordBox x:Name="ConfirmPasswordField" PasswordChanged="ConfirmPasswordField_PasswordChanged" />
+				<!-- Text Box (visible password) -->
+				<TextBox x:Name="PasswordTextBox" Text="{Binding PasswordText, Mode=TwoWay}"
+						 Visibility="Collapsed"/>
 
-                <TextBlock x:Name="ConfirmPasswordPlaceholderText"  Text="Re-enter your password"
-                           Foreground="Black"
-                           Margin="10,0,0,0"
-                           IsHitTestVisible="False"
-                           VerticalAlignment="Center"
-                           Visibility="{Binding PasswordText, Converter={StaticResource TextToVisibilityConverter}}" /> 
-            </Grid>
-        </StackPanel>
+				<!-- Toggle Button -->
+				<Button x:Name="TogglePasswordButton" Width="30" Height="30"
+						HorizontalAlignment="Right" VerticalAlignment="Center"
+					    Command="{Binding TogglePasswordVisibilityCommand}">
+					<Image x:Name="TogglePasswordIcon" Width="20" Height="20"
+						   Source="../Assets/Images/SignUpWindowIcons/closed_eye_icon.png" />
+				</Button>
+			</Grid>
 
-        <!-- Sign In Button -->
-        <Button x:Name="SignUpButton" Grid.Row="5" Content="Sign Up" Foreground="White" Background="#899878" Click="SignUpButton_Click"/>
+			<TextBlock x:Name="PasswordRequirementTextBlock"
+					   Text="Must be at least 8 characters long, contain one number,"
+					   Foreground="White" VerticalAlignment="Bottom" />
+			<TextBlock x:Name="PasswordRequirementTextBlock2"
+					   Text="uppercase letter, and symbol: !@#$%^*"
+					   Foreground="White" VerticalAlignment="Bottom" />
+		</StackPanel>
+
+		<!-- Confirm Password Field -->
+		<StackPanel Grid.Row="8" Margin="0,0,0,10" Orientation="Vertical">
+			<Label Content="Re-enter Password*" />
+			<Grid>
+				<!-- Password Box -->
+                <!-- Confirm Password Box -->
+                <PasswordBox x:Name="ConfirmPasswordField">
+                    <!-- Attach behavior to PasswordChanged event -->
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="PasswordChanged">
+                            <!-- Invoke ViewModel command on event trigger -->
+                            <i:InvokeCommandAction Command="{Binding ConfirmPasswordChangedCommand}" 
+                                      CommandParameter="{Binding ElementName=ConfirmPasswordField, Path=Password}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </PasswordBox>
+
+                <!-- Placeholder Text -->
+				<TextBlock x:Name="ConfirmPasswordPlaceholderText"  Text="Re-enter your password"
+                   Foreground="Black"
+                   Margin="10,0,0,0"
+                   IsHitTestVisible="False"
+                   VerticalAlignment="Center"
+                   Visibility="{Binding PasswordText, Converter={StaticResource TextToVisibilityConverter}}" />
+
+				<!-- Text Box (visible password) -->
+				<TextBox x:Name="ConfirmPasswordTextBox" Text="{Binding ConfirmPasswordText, Mode=TwoWay}"
+						 Visibility="Collapsed"/>
+
+				<!-- Toggle Button -->
+				<Button x:Name="ToggleConfirmPasswordButton" Width="30" Height="30"
+						HorizontalAlignment="Right" VerticalAlignment="Center"
+					    Command="{Binding ToggleConfirmPasswordVisibilityCommand}">
+					<Image x:Name="ToggleConfirmPasswordIcon" Width="20" Height="20"
+						   Source="../Assets/Images/SignUpWindowIcons/closed_eye_icon.png" />
+				</Button>
+			</Grid>
+		</StackPanel>
+
+		<!-- Sign In Button -->
+        <Button x:Name="SignUpButton" Height="35"  Grid.Row="9" Content="Sign Up" Foreground="White" Background="#899878" Command="{Binding SignUpButton_Click}"/>
 
         <!-- Sign Up Link -->
-        <TextBlock Grid.Row="6" Text="* indicates required field"  TextDecorations="None"
+        <TextBlock Grid.Row="10" Text="* indicates required field"  TextDecorations="None"
                Foreground="White"
                HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10"/>
 
