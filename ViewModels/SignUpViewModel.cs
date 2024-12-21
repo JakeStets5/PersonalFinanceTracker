@@ -86,31 +86,48 @@ namespace PersonalFinanceTracker.ViewModels
 
         private void TogglePasswordVisibility() => IsPasswordVisible = !IsPasswordVisible;
 
+        // Asynchronous method to handle the sign-up process
         public async Task<bool> SignUpAsync()
         {
             bool valid = true;
 
+            // Validate the username field
             UsernameError = string.IsNullOrWhiteSpace(Username)
-                ? "Please enter a username."
-                : await _userRepository.UserExistsAsync(Username) ? "Username already exists." : null;
-            valid &= UsernameError == null;
+                ? "Please enter a username."  // Error if the username is empty or whitespace
+                : await _userRepository.UserExistsAsync(Username)
+                    ? "Username already exists."  // Error if the username already exists in the database
+                    : string.Empty;  // No error if validation passes
+            valid &= UsernameError == string.Empty;  // Update 'valid' based on username validation
 
-            EmailError = IsValidEmail(Email) ? null : "Please enter a valid email address.";
-            valid &= EmailError == null;
+            // Validate the email field
+            EmailError = IsValidEmail(Email)
+                ? string.Empty  // No error if the email is valid
+                : "Please enter a valid email address.";  // Error if the email is invalid
+            valid &= EmailError == string.Empty;  // Update 'valid' based on email validation
 
-            PasswordError = ValidatePassword(Password) ? null :
-                "Password must be at least 8 characters, include a number, uppercase, and special character.";
-            valid &= PasswordError == null;
+            // Validate the password field
+            PasswordError = ValidatePassword(Password)
+                ? string.Empty  // No error if the password meets security criteria
+                : "Password must be at least 8 characters, include a number, uppercase, and special character.";
+            valid &= PasswordError == string.Empty;  // Update 'valid' based on password validation
 
-            ConfirmPasswordError = Password == ConfirmPassword ? null : "Passwords do not match.";
-            valid &= ConfirmPasswordError == null;
+            // Validate the confirm password field
+            ConfirmPasswordError = Password == ConfirmPassword
+                ? string.Empty  // No error if the passwords match
+                : "Passwords do not match.";  // Error if they do not match
+            valid &= ConfirmPasswordError == string.Empty;  // Update 'valid' based on confirm password validation
 
+            // If all validations pass, create a new user and add them to the database
             if (valid)
             {
+                // Create a new User object with provided data
                 var user = new User { Username = Username, Email = Email, Password = Password };
+
+                // Asynchronously save the user to the repository
                 await _userRepository.AddUserAsync(user);
             }
 
+            // Return the result of the validation checks
             return valid;
         }
 

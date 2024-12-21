@@ -216,7 +216,6 @@
                     </i:Interaction.Triggers>
                 </PasswordBox>
 
-
                 <!-- Placeholder Text -->
 				<TextBlock x:Name="PasswordPlaceholderText"  Text="Enter your password"
                    Foreground="Black"

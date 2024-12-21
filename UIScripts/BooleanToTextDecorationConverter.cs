@@ -17,7 +17,7 @@ namespace PersonalFinanceTracker.UIScripts
             {
                 return TextDecorations.Underline;
             }
-            return null; // No underline when not hovered
+            return new TextDecorationCollection(); // No underline when not hovered
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
