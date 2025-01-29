@@ -8,10 +8,11 @@
         xmlns:uiscripts="clr-namespace:PersonalFinanceTracker.UIScripts"
         mc:Ignorable="d"
             Height="525" Width="425"
-    Background="#31493C">
+    Background="#1c2b2e">
     <!-- Change Background Color -->
     <Window.Resources>
-        <uiscripts:TextToVisibilityConverter x:Key="TextToVisibilityConverter" />
+        <uiscripts:ErrorMessageVisibilityConverter x:Key="ErrorMessageVisibilityConverter" />
+        <uiscripts:PlaceholderTextVisibilityConverter x:Key="PlaceholderTextVisibilityConverter" />
 		<BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
 
 		<!-- Username Field Style -->
@@ -20,7 +21,7 @@
             <Setter Property="Foreground" Value="Black" />
             <Setter Property="FontFamily" Value="Montserrat" />
             <Setter Property="FontSize" Value="14" />
-            <Setter Property="BorderBrush" Value="#899878" />
+            <Setter Property="BorderBrush" Value="#597A7F" />
             <Setter Property="BorderThickness" Value="2" />
             <Setter Property="Background" Value="#C6B9CD" />
             <Setter Property="Padding" Value="5" />
@@ -38,11 +39,11 @@
                         <ControlTemplate.Triggers>
                             <!-- Hover effect -->
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#899878" />
+                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#597A7F" />
                             </Trigger>
                             <!-- Focus effect -->
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#899878" />
+                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#597A7F" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -56,7 +57,7 @@
             <Setter Property="Foreground" Value="Black" />
             <Setter Property="FontFamily" Value="Montserrat" />
             <Setter Property="FontSize" Value="14" />
-            <Setter Property="BorderBrush" Value="#899878" />
+            <Setter Property="BorderBrush" Value="#597A7F" />
             <Setter Property="BorderThickness" Value="2" />
             <Setter Property="Background" Value="#C6B9CD" />
             <Setter Property="Padding" Value="5" />
@@ -74,11 +75,11 @@
                         <ControlTemplate.Triggers>
                             <!-- Hover effect -->
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#899878" />
+                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#597a7f" />
                             </Trigger>
                             <!-- Focus effect -->
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#899878" />
+                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#597a7f" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -121,7 +122,7 @@
 
         <!-- TextBlock Link Style -->
         <Style TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#5A1807" />
+            <Setter Property="Foreground" Value="#A71F1A" />
             <Setter Property="FontFamily" Value="Montserrat" />
             <Setter Property="FontSize" Value="12" />
             <Setter Property="TextDecorations" Value="Underline" />
@@ -134,15 +135,14 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -150,60 +150,76 @@
         
         <!-- Error Message -->
 		<StackPanel Grid.Row="0">
-			<TextBlock x:Name="UsernameErrorField" Text="Username error" TextDecorations="None"
-                       Visibility="Collapsed"/>
+			<TextBlock x:Name="UsernameErrorField" 
+                       Text= "{Binding UsernameError}"
+                       Visibility="{Binding UsernameError, Converter={StaticResource ErrorMessageVisibilityConverter}}"
+                       TextDecorations="None"
+                       Cursor="Arrow"/>
 		</StackPanel>
 
-		<StackPanel Grid.Row="1">
-			<TextBlock x:Name="EmailErrorField" Text="Email error" TextDecorations="None"
-                       Visibility="Collapsed"/>
-		</StackPanel>
+        <StackPanel Grid.Row="1">
+            <TextBlock x:Name="EmailErrorField" 
+                       Text="{Binding EmailError}" 
+                       Visibility="{Binding EmailError, Converter={StaticResource ErrorMessageVisibilityConverter}}" 
+                       TextDecorations="None"
+                       Cursor="Arrow"/>
+        </StackPanel>
 
-		<StackPanel Grid.Row="2">
-			<TextBlock x:Name="ConfirmPassErrorField" Text="Confirm Password error" TextDecorations="None"
-                       Visibility="Collapsed"/>
-		</StackPanel>
-
-		<StackPanel Grid.Row="3">
-			<TextBlock x:Name="BadPassErrorField" Text="Password error" TextDecorations="None"
-                       Visibility="Collapsed"/>
+        <StackPanel Grid.Row="2">
+            <TextBlock x:Name="PasswordErrorField" 
+                       Text="{Binding PasswordError}" 
+                       Visibility="{Binding PasswordError, Converter={StaticResource ErrorMessageVisibilityConverter}}" 
+                       TextDecorations="None"
+                       TextWrapping="Wrap"
+                       Cursor="Arrow"/>
 		</StackPanel>
 		
-		<StackPanel Grid.Row="4">
-			<TextBlock x:Name="BadPassErrorField2" Text="Password error" TextDecorations="None"
-                       Visibility="Collapsed"/>
+		<StackPanel Grid.Row="3">
+            <TextBlock x:Name="ConfirmPasswordErrorField" 
+                       Text="{Binding ConfirmPasswordError}" 
+                       Visibility="{Binding ConfirmPasswordError, Converter={StaticResource ErrorMessageVisibilityConverter}}" 
+                       TextDecorations="None"
+                       Cursor="Arrow"/> 
 		</StackPanel>
 
         <!-- Username Field -->
-        <StackPanel Grid.Row="5" Margin="0,0,0,10">
+        <StackPanel Grid.Row="4" Margin="0,0,0,10">
             <Label Content="Username*" />
             <Grid>
-                <TextBox x:Name="UsernameField" />
+                <!-- Username Box -->
+                <TextBox x:Name="UsernameField"
+                         Text="{Binding Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                
+                <!-- Placeholder Text -->
                 <TextBlock Text="Enter your username" 
                        Foreground="Black" 
                        Margin="10,0,0,0" 
                        IsHitTestVisible="False"
                        VerticalAlignment="Center"
-                       Visibility="{Binding Text, ElementName=UsernameField, Converter={StaticResource TextToVisibilityConverter}}" />
+                       Visibility="{Binding Text, ElementName=UsernameField, Converter={StaticResource PlaceholderTextVisibilityConverter}}" />
             </Grid>
         </StackPanel>
 
         <!-- Email Field -->
-        <StackPanel Grid.Row="6" Margin="0,0,0,10">
+        <StackPanel Grid.Row="5" Margin="0,0,0,10">
             <Label Content="Email*" />
             <Grid>
-                <TextBox x:Name="EmailField" />
+                <!-- Email Box -->
+                <TextBox x:Name="EmailField" 
+                         Text="{Binding Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                
+                <!-- Placeholder Text -->
                 <TextBlock Text="Enter your email" 
                            Foreground="Black" 
                            Margin="10,0,0,0" 
                            IsHitTestVisible="False"
                            VerticalAlignment="Center"
-                           Visibility="{Binding Text, ElementName=EmailField, Converter={StaticResource TextToVisibilityConverter}}" />
+                           Visibility="{Binding Text, ElementName=EmailField, Converter={StaticResource PlaceholderTextVisibilityConverter}}" />
             </Grid>
         </StackPanel>
 
-		<!-- Password Field -->
-		<StackPanel Grid.Row="7" Margin="0,0,0,10" Orientation="Vertical">
+        <!-- Password Field -->
+		<StackPanel Grid.Row="6" Margin="0,0,0,10" Orientation="Vertical">
 			<Label Content="Password*" />
 			<Grid>
 				<!-- Password Box -->
@@ -211,7 +227,7 @@
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="PasswordChanged">
                             <i:InvokeCommandAction Command="{Binding PasswordChangedCommand}" 
-                                      CommandParameter="{Binding ElementName=PasswordField, Path=Password}" />
+                                      CommandParameter="{Binding ElementName=PasswordField}" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </PasswordBox>
@@ -222,10 +238,10 @@
                    Margin="10,0,0,0"
                    IsHitTestVisible="False"
                    VerticalAlignment="Center"
-                   Visibility="{Binding PasswordText, Converter={StaticResource TextToVisibilityConverter}}" />
+                   Visibility="{Binding IsPasswordPlaceholderVisible, Converter={StaticResource PlaceholderTextVisibilityConverter}}" />
 
 				<!-- Text Box (visible password) -->
-				<TextBox x:Name="PasswordTextBox" Text="{Binding PasswordText, Mode=TwoWay}"
+				<TextBox x:Name="PasswordTextBox" Text="{Binding Password, Mode=TwoWay}"
 						 Visibility="Collapsed"/>
 
 				<!-- Toggle Button -->
@@ -246,7 +262,7 @@
 		</StackPanel>
 
 		<!-- Confirm Password Field -->
-		<StackPanel Grid.Row="8" Margin="0,0,0,10" Orientation="Vertical">
+		<StackPanel Grid.Row="7" Margin="0,0,0,10" Orientation="Vertical">
 			<Label Content="Re-enter Password*" />
 			<Grid>
 				<!-- Password Box -->
@@ -257,7 +273,7 @@
                         <i:EventTrigger EventName="PasswordChanged">
                             <!-- Invoke ViewModel command on event trigger -->
                             <i:InvokeCommandAction Command="{Binding ConfirmPasswordChangedCommand}" 
-                                      CommandParameter="{Binding ElementName=ConfirmPasswordField, Path=Password}" />
+                                      CommandParameter="{Binding ElementName=ConfirmPasswordField}" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </PasswordBox>
@@ -268,10 +284,10 @@
                    Margin="10,0,0,0"
                    IsHitTestVisible="False"
                    VerticalAlignment="Center"
-                   Visibility="{Binding PasswordText, Converter={StaticResource TextToVisibilityConverter}}" />
+                   Visibility="{Binding IsConfirmPasswordPlaceholderVisible, Converter={StaticResource PlaceholderTextVisibilityConverter}}" />
 
 				<!-- Text Box (visible password) -->
-				<TextBox x:Name="ConfirmPasswordTextBox" Text="{Binding ConfirmPasswordText, Mode=TwoWay}"
+				<TextBox x:Name="ConfirmPasswordTextBox" Text="{Binding Password, Mode=TwoWay}"
 						 Visibility="Collapsed"/>
 
 				<!-- Toggle Button -->
@@ -284,13 +300,20 @@
 			</Grid>
 		</StackPanel>
 
-		<!-- Sign In Button -->
-        <Button x:Name="SignUpButton" Height="35"  Grid.Row="9" Content="Sign Up" Foreground="White" Background="#899878" Command="{Binding SignUpButton_Click}"/>
 
-        <!-- Sign Up Link -->
-        <TextBlock Grid.Row="10" Text="* indicates required field"  TextDecorations="None"
+		<!-- Sign Up Button -->
+        <Button x:Name="SignUpButton" 
+                Height="35"  
+                Grid.Row="8" 
+                Content="Sign Up" 
+                Foreground="White" 
+                Background="#597a7f"
+                Command="{Binding SignUpCommand}"/>
+
+        <!-- Required Fields -->
+        <TextBlock Grid.Row="9" Text="* indicates required field"  TextDecorations="None"
                Foreground="White"
-               HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10"/>
+               HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10"/>
 
     </Grid>
 </Window>

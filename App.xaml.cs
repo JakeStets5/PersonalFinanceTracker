@@ -19,7 +19,7 @@ namespace PersonalFinanceTracker
     {
         public IServiceProvider Services { get; private set; }
 
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);  // Call the base method to ensure WPF default startup behavior
 
@@ -30,6 +30,9 @@ namespace PersonalFinanceTracker
 
             try
             {
+                // Load DynamoDB credentials from Secrets Manager
+                await AwsSecretsLoader.LoadDynamoDBCredentials();
+
                 // Setup dependency injection (DI)
                 var serviceCollection = new ServiceCollection();
                 ConfigureServices(serviceCollection);  // This method should add necessary services to the DI container

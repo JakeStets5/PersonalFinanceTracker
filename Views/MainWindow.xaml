@@ -66,7 +66,7 @@
     </Window.Resources>
 
     <DockPanel>
-        <Canvas Background="#31493C" DockPanel.Dock="Top" Height="45">
+        <Canvas Background="#1c2b2e" DockPanel.Dock="Top" Height="45">
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=DockPanel}}">
                 <!-- Two columns: one for left-aligned buttons and one for right-aligned button (sign in) -->
                 <Grid.ColumnDefinitions>
@@ -89,7 +89,7 @@
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Border" Property="Background" Value="#899878" />
+                                        <Setter TargetName="Border" Property="Background" Value="#597a7f" />
                                     </Trigger>
                                     <Trigger Property="IsMouseOver" Value="True">
                                         <Trigger.EnterActions>
@@ -98,7 +98,7 @@
                                                 <Storyboard>
                                                     <ColorAnimation Storyboard.TargetName="Border" 
                                                 Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                From="Transparent" To="#899878" Duration="0:0:0.1"/>
+                                                From="Transparent" To="#597a7f" Duration="0:0:0.1"/>
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </Trigger.EnterActions>
@@ -111,7 +111,7 @@
                                                 <Storyboard>
                                                     <ColorAnimation Storyboard.TargetName="Border" 
                                                 Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                From="#899878" To="#31493C" Duration="0:0:0.1"/>
+                                                From="#597a7f" To="#1c2b2e" Duration="0:0:0.1"/>
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </Trigger.EnterActions>
@@ -132,7 +132,7 @@
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Border" Property="Background" Value="#899878" />
+                                        <Setter TargetName="Border" Property="Background" Value="#597a7f" />
                                     </Trigger>
                                     <Trigger Property="IsMouseOver" Value="True">
                                         <Trigger.EnterActions>
@@ -141,7 +141,7 @@
                                                 <Storyboard>
                                                     <ColorAnimation Storyboard.TargetName="Border" 
                                                                     Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                                    From="Transparent" To="#899878" Duration="0:0:0.1"/>
+                                                                    From="Transparent" To="#597a7f" Duration="0:0:0.1"/>
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </Trigger.EnterActions>
@@ -154,7 +154,7 @@
                                                 <Storyboard>
                                                     <ColorAnimation Storyboard.TargetName="Border" 
                                                                     Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                                    From="#899878" To="#31493C" Duration="0:0:0.1"/>
+                                                                    From="#597a7f" To="#1c2b2e" Duration="0:0:0.1"/>
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </Trigger.EnterActions>
@@ -175,7 +175,7 @@
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Border" Property="Background" Value="#899878" />
+                                        <Setter TargetName="Border" Property="Background" Value="#597a7f" />
                                     </Trigger>
                                     <Trigger Property="IsMouseOver" Value="True">
                                         <Trigger.EnterActions>
@@ -184,7 +184,7 @@
                                                 <Storyboard>
                                                     <ColorAnimation Storyboard.TargetName="Border" 
                                                                     Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                                    From="Transparent" To="#899878" Duration="0:0:0.1"/>
+                                                                    From="Transparent" To="#597a7f" Duration="0:0:0.1"/>
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </Trigger.EnterActions>
@@ -197,7 +197,7 @@
                                                 <Storyboard>
                                                     <ColorAnimation Storyboard.TargetName="Border" 
                                                                     Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                                    From="#899878" To="#31493C" Duration="0:0:0.1"/>
+                                                                    From="#597a7f" To="#1c2b2e" Duration="0:0:0.1"/>
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </Trigger.EnterActions>
@@ -218,7 +218,7 @@
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Border" Property="Background" Value="#899878" />
+                                        <Setter TargetName="Border" Property="Background" Value="#597a7f" />
                                     </Trigger>
                                     <Trigger Property="IsMouseOver" Value="True">
                                         <Trigger.EnterActions>
@@ -227,7 +227,7 @@
                                                 <Storyboard>
                                                     <ColorAnimation Storyboard.TargetName="Border" 
                                                                     Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                                    From="Transparent" To="#899878" Duration="0:0:0.1"/>
+                                                                    From="Transparent" To="#597a7f" Duration="0:0:0.1"/>
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </Trigger.EnterActions>
@@ -240,7 +240,7 @@
                                                 <Storyboard>
                                                     <ColorAnimation Storyboard.TargetName="Border" 
                                                                     Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                                    From="#899878" To="#31493C" Duration="0:0:0.1"/>
+                                                                    From="#597a7f" To="#1c2b2e" Duration="0:0:0.1"/>
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </Trigger.EnterActions>
@@ -261,7 +261,7 @@
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Border" Property="Background" Value="#899878" />
+                                        <Setter TargetName="Border" Property="Background" Value="#597a7f" />
                                     </Trigger>
                                     <Trigger Property="IsMouseOver" Value="True">
                                         <Trigger.EnterActions>
@@ -270,7 +270,7 @@
                                                 <Storyboard>
                                                     <ColorAnimation Storyboard.TargetName="Border" 
                                                                     Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                                    From="Transparent" To="#899878" Duration="0:0:0.1"/>
+                                                                    From="Transparent" To="#597a7f" Duration="0:0:0.1"/>
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </Trigger.EnterActions>
@@ -283,7 +283,7 @@
                                                 <Storyboard>
                                                     <ColorAnimation Storyboard.TargetName="Border" 
                                                                     Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                                    From="#899878" To="#31493C" Duration="0:0:0.1"/>
+                                                                    From="#597a7f" To="#1c2b2e" Duration="0:0:0.1"/>
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </Trigger.EnterActions>
@@ -306,7 +306,7 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="Border" Property="Background" Value="#899878" />
+                                    <Setter TargetName="Border" Property="Background" Value="#597a7f" />
                                 </Trigger>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Trigger.EnterActions>
@@ -315,7 +315,7 @@
                                             <Storyboard>
                                                 <ColorAnimation Storyboard.TargetName="Border" 
                                                                 Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                                From="Transparent" To="#899878" Duration="0:0:0.1"/>
+                                                                From="Transparent" To="#597a7f" Duration="0:0:0.1"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </Trigger.EnterActions>
@@ -328,7 +328,7 @@
                                             <Storyboard>
                                                 <ColorAnimation Storyboard.TargetName="Border" 
                                                                 Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                                From="#899878" To="#31493C" Duration="0:0:0.1"/>
+                                                                From="#597a7f" To="#1c2b2e" Duration="0:0:0.1"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </Trigger.EnterActions>
@@ -346,7 +346,7 @@
         <Rectangle DockPanel.Dock="Top" Height="3" Fill="#C6B9CD" />
 
         <!-- Main Content -->
-        <Grid Background="#899878">
+        <Grid Background="#597a7f">
             <!-- Add your main content here -->
         </Grid>
     </DockPanel>

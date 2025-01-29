@@ -1,29 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
-using System.Security;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 
 namespace PersonalFinanceTracker.UIScripts
 {
-    public class TextToVisibilityConverter : IValueConverter
+    public class ErrorMessageVisibilityConverter: IValueConverter
     {
-
         // Converts a value to Visibility
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            // Check if the value is a string or SecureString
-            if (value is string text)
+            if (value is string errorMessage)
             {
-                return string.IsNullOrEmpty(text) ? Visibility.Visible : Visibility.Collapsed;
+                return string.IsNullOrEmpty(errorMessage) ? Visibility.Collapsed : Visibility.Visible;
             }
 
-            if (value is SecureString secureText)
-            {
-                return secureText.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
-            }
-
-            return Visibility.Visible; // default case, when the value is neither string nor SecureString
+            // Default case: show if value is not handled by other conditions
+            return Visibility.Collapsed;
         }
 
         // ConvertBack is not needed for one-way bindings, so we throw an exception

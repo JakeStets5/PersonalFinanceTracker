@@ -4,17 +4,17 @@
         xmlns:uiscripts="clr-namespace:PersonalFinanceTracker.UIScripts"
         Title="Sign In"
         Height="300" Width="350"
-        Background="#31493C">
+        Background="#1c2b2e">
     <!-- Change Background Color -->
     <Window.Resources>
-        <uiscripts:TextToVisibilityConverter x:Key="TextToVisibilityConverter" />
+        <uiscripts:PlaceholderTextVisibilityConverter x:Key="PlaceholderTextVisibilityConverter" />
         <!-- Username Field Style -->
         <Style TargetType="TextBox">
             <!-- Default properties -->
             <Setter Property="Foreground" Value="Black" />
             <Setter Property="FontFamily" Value="Montserrat" />
             <Setter Property="FontSize" Value="14" />
-            <Setter Property="BorderBrush" Value="#899878" />
+            <Setter Property="BorderBrush" Value="#597a7f" />
             <Setter Property="BorderThickness" Value="2" />
             <Setter Property="Background" Value="#C6B9CD" />
             <Setter Property="Padding" Value="5" />
@@ -32,11 +32,11 @@
                         <ControlTemplate.Triggers>
                             <!-- Hover effect -->
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#899878" />
+                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#597a7f" />
                             </Trigger>
                             <!-- Focus effect -->
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#899878" />
+                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#597a7f" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -51,7 +51,7 @@
             <Setter Property="Foreground" Value="Black" />
             <Setter Property="FontFamily" Value="Montserrat" />
             <Setter Property="FontSize" Value="14" />
-            <Setter Property="BorderBrush" Value="#899878" />
+            <Setter Property="BorderBrush" Value="#597a7f" />
             <Setter Property="BorderThickness" Value="2" />
             <Setter Property="Background" Value="#C6B9CD" />
             <Setter Property="Padding" Value="5" />
@@ -69,11 +69,11 @@
                         <ControlTemplate.Triggers>
                             <!-- Hover effect -->
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#899878" />
+                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#597a7f" />
                             </Trigger>
                             <!-- Focus effect -->
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#899878" />
+                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#597a7f" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -147,7 +147,7 @@
                            Margin="10,0,0,0" 
                            IsHitTestVisible="False"
                            VerticalAlignment="Center"
-                           Visibility="{Binding Text, ElementName=UsernameField, Converter={StaticResource TextToVisibilityConverter}}" />
+                           Visibility="{Binding Text, ElementName=UsernameField, Converter={StaticResource PlaceholderTextVisibilityConverter}}" />
             </Grid>
         </StackPanel>
 
@@ -163,12 +163,12 @@
                            Margin="10,0,0,0"
                            IsHitTestVisible="False"
                            VerticalAlignment="Center"
-                           Visibility="{Binding PasswordText, Converter={StaticResource TextToVisibilityConverter}}" />
+                           Visibility="{Binding PasswordText, Converter={StaticResource PlaceholderTextVisibilityConverter}}" />
             </Grid>
         </StackPanel>
 
         <!-- Sign In Button -->
-        <Button x:Name="SignInButton" Height="35" Grid.Row="2" Content="Sign In" Foreground="White" Background="#899878" Click="SignInButton_Click"/>
+        <Button x:Name="SignInButton" Height="35" Grid.Row="2" Content="Sign In" Foreground="White" Background="#597a7f" Click="SignInButton_Click"/>
 
         <!-- Sign Up Link -->
         <TextBlock Grid.Row="3" Text="Don't have an account? Sign Up" 

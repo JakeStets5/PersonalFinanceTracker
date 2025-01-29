@@ -4,6 +4,7 @@
              xmlns:local="clr-namespace:PersonalFinanceTracker"
              xmlns:uiscripts="clr-namespace:PersonalFinanceTracker.UIScripts">
     <Application.Resources >
-        <uiscripts:TextToVisibilityConverter x:Key="TextToVisibilityConverter" />
+        <uiscripts:PlaceholderTextVisibilityConverter x:Key="PlaceholderTextVisibilityConverter" />
+        <uiscripts:ErrorMessageVisibilityConverter x:Key="ErrorMessageVisibilityConverter" />
     </Application.Resources>
 </Application>
