@@ -57,6 +57,7 @@ namespace PersonalFinanceTracker
 
         private void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IUserRepository, UserRepository>();  // Registering the user repo interface and its implementation
             services.AddSingleton<IAmazonDynamoDB, AmazonDynamoDBClient>();
             services.AddTransient<IAwsDynamoDbService, AwsDynamoDbService>();
             services.AddTransient<UserRepository>();  // Register UserRepository

@@ -13,7 +13,9 @@
     <Window.Resources>
         <uiscripts:ErrorMessageVisibilityConverter x:Key="ErrorMessageVisibilityConverter" />
         <uiscripts:PlaceholderTextVisibilityConverter x:Key="PlaceholderTextVisibilityConverter" />
-		<BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <uiscripts:InvertedBoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter"/>
+        <uiscripts:MultiParameterConverter x:Key="MultiParameterConverter"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
 
 		<!-- Username Field Style -->
         <Style TargetType="TextBox">
@@ -129,6 +131,7 @@
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         </Style>
+
     </Window.Resources>
 
     <Grid Margin="20">
@@ -223,11 +226,18 @@
 			<Label Content="Password*" />
 			<Grid>
 				<!-- Password Box -->
-                <PasswordBox x:Name="PasswordField">
+                <PasswordBox x:Name="PasswordField" PasswordChar="●"
+                             Visibility="{Binding IsPasswordVisible, Converter={StaticResource InvertedBoolToVisibilityConverter}}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="PasswordChanged">
-                            <i:InvokeCommandAction Command="{Binding PasswordChangedCommand}" 
-                                      CommandParameter="{Binding ElementName=PasswordField}" />
+                            <i:InvokeCommandAction Command="{Binding PasswordChangedCommand}">
+                                <i:InvokeCommandAction.CommandParameter>
+                                    <MultiBinding Converter="{StaticResource MultiParameterConverter}">
+                                        <Binding ElementName="PasswordField" />
+                                        <Binding ElementName="PasswordTextBox" />
+                                    </MultiBinding>
+                                </i:InvokeCommandAction.CommandParameter>
+                            </i:InvokeCommandAction>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </PasswordBox>
@@ -241,36 +251,50 @@
                    Visibility="{Binding IsPasswordPlaceholderVisible, Converter={StaticResource PlaceholderTextVisibilityConverter}}" />
 
 				<!-- Text Box (visible password) -->
-				<TextBox x:Name="PasswordTextBox" Text="{Binding Password, Mode=TwoWay}"
-						 Visibility="Collapsed"/>
+                <TextBox x:Name="PasswordTextBox" 
+                        Text="{Binding TempPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Visibility="{Binding IsPasswordVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="TextChanged">
+                            <i:InvokeCommandAction Command="{Binding PasswordChangedCommand}">
+                                <i:InvokeCommandAction.CommandParameter>
+                                    <MultiBinding Converter="{StaticResource MultiParameterConverter}">
+                                        <Binding ElementName="PasswordField" />
+                                        <Binding ElementName="PasswordTextBox" />
+                                    </MultiBinding>
+                                </i:InvokeCommandAction.CommandParameter>
+                            </i:InvokeCommandAction>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </TextBox>
 
-				<!-- Toggle Button -->
-				<Button x:Name="TogglePasswordButton" Width="30" Height="30"
+                <!-- Toggle Button -->
+                <Button x:Name="TogglePasswordButton" Width="30" Height="30"
 						HorizontalAlignment="Right" VerticalAlignment="Center"
-					    Command="{Binding TogglePasswordVisibilityCommand}">
-					<Image x:Name="TogglePasswordIcon" Width="20" Height="20"
+					    Command="{Binding TogglePasswordVisibilityCommand}"
+                        CommandParameter="{Binding ElementName=TogglePasswordButton}">
+                    <Image x:Name="TogglePasswordIcon" Width="20" Height="20"
 						   Source="../Assets/Images/SignUpWindowIcons/closed_eye_icon.png" />
 				</Button>
 			</Grid>
 
 			<TextBlock x:Name="PasswordRequirementTextBlock"
 					   Text="Must be at least 8 characters long, contain one number,"
-					   Foreground="White" VerticalAlignment="Bottom" />
+					   Foreground="White" VerticalAlignment="Bottom" Cursor="Arrow" />
 			<TextBlock x:Name="PasswordRequirementTextBlock2"
 					   Text="uppercase letter, and symbol: !@#$%^*"
-					   Foreground="White" VerticalAlignment="Bottom" />
+					   Foreground="White" VerticalAlignment="Bottom" Cursor="Arrow"/>
 		</StackPanel>
 
 		<!-- Confirm Password Field -->
-		<StackPanel Grid.Row="7" Margin="0,0,0,10" Orientation="Vertical">
-			<Label Content="Re-enter Password*" />
-			<Grid>
-				<!-- Password Box -->
+        <StackPanel Grid.Row="7" Margin="0,0,0,10" Orientation="Vertical">
+            <Label Content="Re-enter Password*" />
+            <Grid>
                 <!-- Confirm Password Box -->
                 <PasswordBox x:Name="ConfirmPasswordField">
                     <!-- Attach behavior to PasswordChanged event -->
                     <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="PasswordChanged">
+                        <i:EventTrigger EventName="ConfirmPasswordChanged">
                             <!-- Invoke ViewModel command on event trigger -->
                             <i:InvokeCommandAction Command="{Binding ConfirmPasswordChangedCommand}" 
                                       CommandParameter="{Binding ElementName=ConfirmPasswordField}" />
@@ -279,29 +303,28 @@
                 </PasswordBox>
 
                 <!-- Placeholder Text -->
-				<TextBlock x:Name="ConfirmPasswordPlaceholderText"  Text="Re-enter your password"
+                <TextBlock x:Name="ConfirmPasswordPlaceholderText"  Text="Re-enter your password"
                    Foreground="Black"
                    Margin="10,0,0,0"
                    IsHitTestVisible="False"
                    VerticalAlignment="Center"
                    Visibility="{Binding IsConfirmPasswordPlaceholderVisible, Converter={StaticResource PlaceholderTextVisibilityConverter}}" />
 
-				<!-- Text Box (visible password) -->
-				<TextBox x:Name="ConfirmPasswordTextBox" Text="{Binding Password, Mode=TwoWay}"
+                <!-- Text Box (visible password) -->
+                <TextBox x:Name="ConfirmPasswordTextBox" Text="{Binding Password, Mode=TwoWay}"
 						 Visibility="Collapsed"/>
 
-				<!-- Toggle Button -->
-				<Button x:Name="ToggleConfirmPasswordButton" Width="30" Height="30"
+                <!-- Toggle Button -->
+                <Button x:Name="ToggleConfirmPasswordButton" Width="30" Height="30"
 						HorizontalAlignment="Right" VerticalAlignment="Center"
 					    Command="{Binding ToggleConfirmPasswordVisibilityCommand}">
-					<Image x:Name="ToggleConfirmPasswordIcon" Width="20" Height="20"
+                    <Image x:Name="ToggleConfirmPasswordIcon" Width="20" Height="20"
 						   Source="../Assets/Images/SignUpWindowIcons/closed_eye_icon.png" />
-				</Button>
-			</Grid>
-		</StackPanel>
+                </Button>
+            </Grid>
+        </StackPanel>
 
-
-		<!-- Sign Up Button -->
+        <!-- Sign Up Button -->
         <Button x:Name="SignUpButton" 
                 Height="35"  
                 Grid.Row="8" 
@@ -312,8 +335,7 @@
 
         <!-- Required Fields -->
         <TextBlock Grid.Row="9" Text="* indicates required field"  TextDecorations="None"
-               Foreground="White"
-               HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10"/>
-
+               Foreground="White" Cursor="Arrow"
+               HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10" />
     </Grid>
 </Window>

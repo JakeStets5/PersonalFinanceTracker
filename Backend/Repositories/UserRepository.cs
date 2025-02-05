@@ -7,7 +7,7 @@ using Amazon.DynamoDBv2.DataModel;
 
 namespace PersonalFinanceTracker.Backend.Repositories
 {
-    public class UserRepository
+    public class UserRepository: IUserRepository
     {
         private readonly IAwsDynamoDbService _dynamoDbService;
         private readonly ILogger<UserRepository> _logger;

@@ -40,6 +40,22 @@ namespace PersonalFinanceTracker.Views
         {
             InitializeComponent();
             _userRepository = userRepository;
+
+            // Set window position relative to the main window
+            CenterToMainWindow();
+        }
+
+        // Centers the sign in window in the main window
+        private void CenterToMainWindow()
+        {
+            if (Application.Current.MainWindow != null)
+            {
+                Window mainWindow = Application.Current.MainWindow;
+
+                // Calculate center position relative to the main window
+                this.Left = mainWindow.Left + (mainWindow.Width - this.Width) / 2;
+                this.Top = mainWindow.Top + (mainWindow.Height - this.Height) / 2;
+            }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -54,7 +70,7 @@ namespace PersonalFinanceTracker.Views
             this.Close();
 
             // Create the SignUpViewModel and pass the UserRepository
-            var signUpViewModel = new SignUpViewModel(_userRepository);
+            var signUpViewModel = new SignUpViewModel(_userRepository, this);
 
             SignUpWindow signUpWindow = new SignUpWindow(signUpViewModel);
             signUpWindow.DataContext = signUpViewModel; // Bind the ViewModel to the Window's DataContext

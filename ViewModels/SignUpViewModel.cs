@@ -5,47 +5,77 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using PersonalFinanceTracker.Commands;
 using PersonalFinanceTracker.Backend.Models;
-using PersonalFinanceTracker.Backend.Repositories;
 using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Threading;
 using System.Reflection.Metadata;
+using PersonalFinanceTracker.Backend.Services.Interfaces;
+using PersonalFinanceTracker.Views;
+using System.Windows.Media.Imaging;
 
 namespace PersonalFinanceTracker.ViewModels
 {
     public class SignUpViewModel : INotifyPropertyChanged
     {
-        private readonly UserRepository _userRepository;
+        private readonly IUserRepository _userRepository;
 
         private string _username;
         private string _usernameError;
         private string _email;
         private string _emailError;
         private string _password;
+        private string _tempPassword;
         private string _passwordError;
         private string _confirmPassword;
         private string _confirmPasswordError;
         private bool _isPasswordVisible;
+        private bool _isUpdating = false;
+        private bool valid = true; // For credential verification
+
         public bool IsPasswordPlaceholderVisible => string.IsNullOrEmpty(Password); // To make the placeholder text for password vanish
         public bool IsConfirmPasswordPlaceholderVisible => string.IsNullOrEmpty(ConfirmPassword); // To make the placeholder text for confirm password vanish
+        public char PasswordMaskChar => IsPasswordVisible ? '\0' : '●';
+
 
         public event PropertyChangedEventHandler? PropertyChanged;
+        public event Action OnSignUpCompleted; // Event that notifies of completion
 
-        public SignUpViewModel(UserRepository userRepository)
+        public SignUpViewModel(IUserRepository userRepository, Window signUpWindow)
         {
             _userRepository = userRepository;
 
-            // Corrected Commands
+            // When the sign up button is clicked...
             SignUpCommand = new RelayCommand(async () => await SignUpAsync());
-            TogglePasswordVisibilityCommand = new RelayCommand(TogglePasswordVisibility);
+
+            // When the password visibility button is clicked...
+            TogglePasswordVisibilityCommand = new RelayCommand<Button>(TogglePasswordVisibility);
 
             // When the password is changed...
             PasswordChangedCommand = new RelayCommand<object>(parameter => 
             {
-                if (parameter is PasswordBox passwordBox)
+                if (parameter is object[] values && values.Length == 2)
                 {
-                    Password = passwordBox.Password;
-                    OnPropertyChanged(nameof(IsPasswordPlaceholderVisible));
+                    var passwordBox = values[0] as PasswordBox;
+                    var textBox = values[1] as TextBox;
+
+                    if(textBox != null && passwordBox != null)
+                    {
+                        if (_isUpdating) return;
+                        _isUpdating = true;
+
+                        if (passwordBox.IsFocused)
+                        {
+                            Password = passwordBox.Password;
+                            textBox.Text = Password; // Manually sync to TextBox
+                        }
+                        else if (textBox.IsFocused)
+                        {
+                            Password = textBox.Text;
+                            passwordBox.Password = Password; // Manually sync to PasswordBox
+                        }
+
+                        _isUpdating = false;
+                    }
                 }
             });
 
@@ -59,7 +89,14 @@ namespace PersonalFinanceTracker.ViewModels
                 }
             });
         }
-         
+
+        // Commands
+        public ICommand SignUpCommand { get; }
+        public ICommand TogglePasswordVisibilityCommand { get; }
+        public ICommand ToggleConfirmPasswordVisibilityCommand { get; }
+        public ICommand PasswordChangedCommand { get; } // Must include due to password box not supporting two way binding
+        public ICommand ConfirmPasswordChangedCommand { get; } // Must include due to password box not supporting two way binding
+
         // Properties and their Notifications
         public string Username
         {
@@ -88,7 +125,14 @@ namespace PersonalFinanceTracker.ViewModels
             get => _password;
             set => SetProperty(ref _password, value);
         }
-        
+
+        public string TempPassword
+        {
+            get => _tempPassword;
+            set => SetProperty(ref _tempPassword, value);
+        }
+
+
         public string PasswordError
         {
             get => _passwordError;
@@ -113,20 +157,9 @@ namespace PersonalFinanceTracker.ViewModels
             set => SetProperty(ref _isPasswordVisible, value);
         }
 
-        // Commands
-        public ICommand SignUpCommand { get; }
-        public ICommand TogglePasswordVisibilityCommand { get; }
-        public ICommand ToggleConfirmPasswordVisibilityCommand { get; }
-        public ICommand PasswordChangedCommand { get; } // Must include due to password box not supporting two way binding
-        public ICommand ConfirmPasswordChangedCommand { get; } // Must include due to password box not supporting two way binding
-
-        private void TogglePasswordVisibility() => IsPasswordVisible = !IsPasswordVisible;
-
         // Asynchronous method to handle the sign-up process
         public async Task<bool> SignUpAsync()
         {
-            bool valid = true;
-
             // Validate the username field
             if (string.IsNullOrWhiteSpace(Username))
                 UsernameError = "Please enter a username.";
@@ -174,21 +207,86 @@ namespace PersonalFinanceTracker.ViewModels
                 var user = new User { Username = Username, Email = Email, Password = Password };
 
                 // Asynchronously save the user to the repository
-                await _userRepository.AddUserAsync(user);
+                try
+                {
+                    await _userRepository.AddUserAsync(user);
+                }
+                catch (Exception ex)
+                {
+                    // Handle errors if needed
+                    Console.WriteLine(ex.Message);
+                }
+
+                // Show success pop-up and close the sign-up window
+                OnSignUpCompleted?.Invoke();
+                ShowSuccessPopUp();
             }
 
             // Return the result of the validation checks
             return valid;
         }
 
+        // Displays a pop up window notifying of a successful sign up for 2 seconds
+        private void ShowSuccessPopUp()
+        {
+            SuccessWindow successWindow = new SuccessWindow();
+            successWindow.Show();  // Show the success window
+
+            // Create a timer to close the success window after 2 seconds
+            DispatcherTimer timer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(2)
+            };
+
+            timer.Tick += (sender, args) =>
+            {
+                successWindow.Close();  // Close the pop-up window after 2 seconds
+                timer.Stop();  // Stop the timer
+            };
+
+            timer.Start();
+        }
+
+        // Ensures the password reaches the requirements
         private bool ValidatePassword(string password) =>
             password.Length >= 8 &&
             Regex.IsMatch(password, @"[A-Z]") &&
             Regex.IsMatch(password, @"\d") &&
             Regex.IsMatch(password, @"[!@#$%^&*(),.?""':{}|<>]");
 
+        // Ensures the email meets requirements
         private bool IsValidEmail(string email) =>
             Regex.IsMatch(email, @"^[^\s@]+@[^\s@]+\.[^\s@]+$");
+
+        private void TogglePasswordVisibility(Button button)
+        {
+            if (IsPasswordVisible)
+            {
+                // Switching from visible (TextBox) to hidden (PasswordBox)
+                Password = TempPassword;  // Save any text input in visible mode
+                OnPropertyChanged(nameof(Password));
+            }
+            else
+            {
+                // Switching from hidden (PasswordBox) to visible (TextBox)
+                TempPassword = Password;  // Store current password value to display
+                
+                OnPropertyChanged(nameof(TempPassword));
+            }
+
+            // Toggle the boolean property
+            IsPasswordVisible = !IsPasswordVisible;
+
+            // Find the Image inside the Button
+            if (button.Content is Image image)
+            {
+                string newIconPath = IsPasswordVisible
+                    ? "../Assets/Images/SignUpWindowIcons/open_eye_icon.png"
+                    : "../Assets/Images/SignUpWindowIcons/closed_eye_icon.png";
+
+                image.Source = new BitmapImage(new Uri(newIconPath, UriKind.Relative));
+            }
+        }
 
         protected void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

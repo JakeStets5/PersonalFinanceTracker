@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <Folder Include="Assets\Database\" />
+    <Folder Include="Helpers\" />
     <Folder Include="Resources\" />
   </ItemGroup>
 
