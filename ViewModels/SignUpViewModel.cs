@@ -27,8 +27,10 @@ namespace PersonalFinanceTracker.ViewModels
         private string _tempPassword;
         private string _passwordError;
         private string _confirmPassword;
+        private string _tempConfirmPassword;
         private string _confirmPasswordError;
         private bool _isPasswordVisible;
+        private bool _isConfirmPasswordVisible;
         private bool _isUpdating = false;
         private bool valid = true; // For credential verification
 
@@ -50,15 +52,72 @@ namespace PersonalFinanceTracker.ViewModels
             // When the password visibility button is clicked...
             TogglePasswordVisibilityCommand = new RelayCommand<Button>(TogglePasswordVisibility);
 
-            // When the password is changed...
+            // When the confirm password visibility button is clicked...
+            ToggleConfirmPasswordVisibilityCommand = new RelayCommand<Button>(ToggleConfirmPasswordVisibility);
+
+            // When either password is changed...
             PasswordChangedCommand = new RelayCommand<object>(parameter => 
+            {
+                if (parameter is object[] values && values.Length == 3)
+                {
+                    var passwordBox = values[0] as PasswordBox;
+                    var textBox = values[1] as TextBox;
+                    var identifier = values[2] as string;
+
+                    if (identifier == "MainPassword")
+                    {
+                        if (textBox != null && passwordBox != null)
+                        {
+                            if (_isUpdating) return;
+                            _isUpdating = true;
+
+                            if (passwordBox.IsFocused)
+                            {
+                                Password = passwordBox.Password;
+                                textBox.Text = Password; // Manually sync to TextBox
+                            }
+                            else if (textBox.IsFocused)
+                            {
+                                Password = textBox.Text;
+                                passwordBox.Password = Password; // Manually sync to PasswordBox
+                            }
+
+                            _isUpdating = false;
+                        }
+                    }
+                    else if (identifier == "ConfirmPassword")
+                    {
+                        if (textBox != null && passwordBox != null)
+                        {
+                            if (_isUpdating) return;
+                            _isUpdating = true;
+
+                            if (passwordBox.IsFocused)
+                            {
+                                ConfirmPassword = passwordBox.Password;
+                                textBox.Text = ConfirmPassword; // Manually sync to TextBox
+                            }
+                            else if (textBox.IsFocused)
+                            {
+                                ConfirmPassword = textBox.Text;
+                                passwordBox.Password = ConfirmPassword; // Manually sync to PasswordBox
+                            }
+
+                            _isUpdating = false;
+                        }
+                    }
+                }
+            });
+
+            // When the confirm password is changed...
+            ConfirmPasswordChangedCommand = new RelayCommand<object>(parameter =>
             {
                 if (parameter is object[] values && values.Length == 2)
                 {
                     var passwordBox = values[0] as PasswordBox;
                     var textBox = values[1] as TextBox;
 
-                    if(textBox != null && passwordBox != null)
+                    if (textBox != null && passwordBox != null)
                     {
                         if (_isUpdating) return;
                         _isUpdating = true;
@@ -76,16 +135,6 @@ namespace PersonalFinanceTracker.ViewModels
 
                         _isUpdating = false;
                     }
-                }
-            });
-
-            // When the confirm password is changed...
-            ConfirmPasswordChangedCommand = new RelayCommand<object>(parameter =>
-            {
-                if (parameter is PasswordBox passwordBox)
-                {
-                    ConfirmPassword = passwordBox.Password;
-                    OnPropertyChanged(nameof(IsConfirmPasswordPlaceholderVisible));
                 }
             });
         }
@@ -145,6 +194,12 @@ namespace PersonalFinanceTracker.ViewModels
             set => SetProperty(ref _confirmPassword, value);
         }
 
+        public string ConfirmTempPassword
+        {
+            get => _tempConfirmPassword;
+            set => SetProperty(ref _tempConfirmPassword, value);
+        }
+
         public string ConfirmPasswordError 
         {
             get => _confirmPasswordError;
@@ -157,9 +212,16 @@ namespace PersonalFinanceTracker.ViewModels
             set => SetProperty(ref _isPasswordVisible, value);
         }
 
+        public bool IsConfirmPasswordVisible
+        {
+            get => _isConfirmPasswordVisible;
+            set => SetProperty(ref _isConfirmPasswordVisible, value);
+        }
+
         // Asynchronous method to handle the sign-up process
         public async Task<bool> SignUpAsync()
         {
+            valid = true;
             // Validate the username field
             if (string.IsNullOrWhiteSpace(Username))
                 UsernameError = "Please enter a username.";
@@ -281,6 +343,36 @@ namespace PersonalFinanceTracker.ViewModels
             if (button.Content is Image image)
             {
                 string newIconPath = IsPasswordVisible
+                    ? "../Assets/Images/SignUpWindowIcons/open_eye_icon.png"
+                    : "../Assets/Images/SignUpWindowIcons/closed_eye_icon.png";
+
+                image.Source = new BitmapImage(new Uri(newIconPath, UriKind.Relative));
+            }
+        }
+
+        private void ToggleConfirmPasswordVisibility(Button button)
+        {
+            if (IsConfirmPasswordVisible)
+            {
+                // Switching from visible (TextBox) to hidden (PasswordBox)
+                ConfirmPassword = ConfirmTempPassword;  // Save any text input in visible mode
+                OnPropertyChanged(nameof(ConfirmPassword));
+            }
+            else
+            {
+                // Switching from hidden (PasswordBox) to visible (TextBox)
+                ConfirmTempPassword = ConfirmPassword;  // Store current password value to display
+
+                OnPropertyChanged(nameof(ConfirmTempPassword));
+            }
+
+            // Toggle the boolean property
+            IsConfirmPasswordVisible = !IsConfirmPasswordVisible;
+
+            // Find the Image inside the Button
+            if (button.Content is Image image)
+            {
+                string newIconPath = IsConfirmPasswordVisible
                     ? "../Assets/Images/SignUpWindowIcons/open_eye_icon.png"
                     : "../Assets/Images/SignUpWindowIcons/closed_eye_icon.png";
 

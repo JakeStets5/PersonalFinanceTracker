@@ -17,7 +17,7 @@
         <uiscripts:MultiParameterConverter x:Key="MultiParameterConverter"/>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
 
-		<!-- Username Field Style -->
+        <!-- Username Field Style -->
         <Style TargetType="TextBox">
             <!-- Default properties -->
             <Setter Property="Foreground" Value="Black" />
@@ -230,11 +230,14 @@
                              Visibility="{Binding IsPasswordVisible, Converter={StaticResource InvertedBoolToVisibilityConverter}}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="PasswordChanged">
+                            <!-- Invokes a command in the ViewModel when the event is triggered -->
                             <i:InvokeCommandAction Command="{Binding PasswordChangedCommand}">
                                 <i:InvokeCommandAction.CommandParameter>
+                                    <!-- Passing multiple parameters to the command using MultiBinding -->
                                     <MultiBinding Converter="{StaticResource MultiParameterConverter}">
                                         <Binding ElementName="PasswordField" />
                                         <Binding ElementName="PasswordTextBox" />
+                                        <Binding Source="{StaticResource MainPasswordIdentifier}" />
                                     </MultiBinding>
                                 </i:InvokeCommandAction.CommandParameter>
                             </i:InvokeCommandAction>
@@ -261,6 +264,7 @@
                                     <MultiBinding Converter="{StaticResource MultiParameterConverter}">
                                         <Binding ElementName="PasswordField" />
                                         <Binding ElementName="PasswordTextBox" />
+                                        <Binding Source="{StaticResource MainPasswordIdentifier}" />
                                     </MultiBinding>
                                 </i:InvokeCommandAction.CommandParameter>
                             </i:InvokeCommandAction>
@@ -291,13 +295,21 @@
             <Label Content="Re-enter Password*" />
             <Grid>
                 <!-- Confirm Password Box -->
-                <PasswordBox x:Name="ConfirmPasswordField">
+                <PasswordBox x:Name="ConfirmPasswordField" PasswordChar="●"
+                             Visibility="{Binding IsConfirmPasswordVisible, Converter={StaticResource InvertedBoolToVisibilityConverter}}">
                     <!-- Attach behavior to PasswordChanged event -->
                     <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="ConfirmPasswordChanged">
+                        <i:EventTrigger EventName="PasswordChanged">
                             <!-- Invoke ViewModel command on event trigger -->
-                            <i:InvokeCommandAction Command="{Binding ConfirmPasswordChangedCommand}" 
-                                      CommandParameter="{Binding ElementName=ConfirmPasswordField}" />
+                            <i:InvokeCommandAction Command="{Binding PasswordChangedCommand}">
+                                <i:InvokeCommandAction.CommandParameter>
+                                    <MultiBinding Converter="{StaticResource MultiParameterConverter}">
+                                        <Binding ElementName="ConfirmPasswordField"/>
+                                        <Binding ElementName="ConfirmPasswordTextBox"/>
+                                        <Binding Source="{StaticResource ConfirmPasswordIdentifier}" />
+                                    </MultiBinding>
+                                </i:InvokeCommandAction.CommandParameter>
+                            </i:InvokeCommandAction>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </PasswordBox>
@@ -311,15 +323,32 @@
                    Visibility="{Binding IsConfirmPasswordPlaceholderVisible, Converter={StaticResource PlaceholderTextVisibilityConverter}}" />
 
                 <!-- Text Box (visible password) -->
-                <TextBox x:Name="ConfirmPasswordTextBox" Text="{Binding Password, Mode=TwoWay}"
-						 Visibility="Collapsed"/>
+                <TextBox x:Name="ConfirmPasswordTextBox" 
+                         Text="{Binding TempConfirmPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+						 Visibility="{Binding IsConfirmPasswordVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="TextChanged">
+                            <i:InvokeCommandAction Command="{Binding PasswordChangedCommand}">
+                                <i:InvokeCommandAction.CommandParameter>
+                                    <MultiBinding Converter="{StaticResource MultiParameterConverter}">
+                                        <Binding ElementName="ConfirmPasswordField"/>
+                                        <Binding ElementName="ConfirmPasswordTextBox"/>
+                                        <Binding Source="{StaticResource ConfirmPasswordIdentifier}" />
+                                    </MultiBinding>
+                                </i:InvokeCommandAction.CommandParameter>
+                            </i:InvokeCommandAction>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    
+                </TextBox>
 
                 <!-- Toggle Button -->
                 <Button x:Name="ToggleConfirmPasswordButton" Width="30" Height="30"
-						HorizontalAlignment="Right" VerticalAlignment="Center"
-					    Command="{Binding ToggleConfirmPasswordVisibilityCommand}">
+					HorizontalAlignment="Right" VerticalAlignment="Center"
+				    Command="{Binding ToggleConfirmPasswordVisibilityCommand}"
+                    CommandParameter="{Binding ElementName=ToggleConfirmPasswordButton}">
                     <Image x:Name="ToggleConfirmPasswordIcon" Width="20" Height="20"
-						   Source="../Assets/Images/SignUpWindowIcons/closed_eye_icon.png" />
+					   Source="../Assets/Images/SignUpWindowIcons/closed_eye_icon.png" />
                 </Button>
             </Grid>
         </StackPanel>
