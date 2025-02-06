@@ -19,20 +19,20 @@ namespace PersonalFinanceTracker.ViewModels
     {
         private readonly IUserRepository _userRepository;
 
-        private string _username;
-        private string _usernameError;
-        private string _email;
-        private string _emailError;
-        private string _password;
-        private string _tempPassword;
-        private string _passwordError;
-        private string _confirmPassword;
-        private string _tempConfirmPassword;
-        private string _confirmPasswordError;
+        private string _username = "";
+        private string _usernameError = "";
+        private string _email = "";
+        private string _emailError = "";
+        private string _password = "";
+        private string _tempPassword = "";
+        private string _passwordError = "";
+        private string _confirmPassword = "";
+        private string _tempConfirmPassword = "";
+        private string _confirmPasswordError = "";
         private bool _isPasswordVisible;
         private bool _isConfirmPasswordVisible;
         private bool _isUpdating = false;
-        private bool valid = true; // For credential verification
+        private bool _valid = true; // For credential verification
 
         public bool IsPasswordPlaceholderVisible => string.IsNullOrEmpty(Password); // To make the placeholder text for password vanish
         public bool IsConfirmPasswordPlaceholderVisible => string.IsNullOrEmpty(ConfirmPassword); // To make the placeholder text for confirm password vanish
@@ -40,7 +40,7 @@ namespace PersonalFinanceTracker.ViewModels
 
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        public event Action OnSignUpCompleted; // Event that notifies of completion
+        public event Action? OnSignUpCompleted; // Event that notifies of completion
 
         public SignUpViewModel(IUserRepository userRepository, Window signUpWindow)
         {
@@ -108,35 +108,6 @@ namespace PersonalFinanceTracker.ViewModels
                     }
                 }
             });
-
-            // When the confirm password is changed...
-            ConfirmPasswordChangedCommand = new RelayCommand<object>(parameter =>
-            {
-                if (parameter is object[] values && values.Length == 2)
-                {
-                    var passwordBox = values[0] as PasswordBox;
-                    var textBox = values[1] as TextBox;
-
-                    if (textBox != null && passwordBox != null)
-                    {
-                        if (_isUpdating) return;
-                        _isUpdating = true;
-
-                        if (passwordBox.IsFocused)
-                        {
-                            Password = passwordBox.Password;
-                            textBox.Text = Password; // Manually sync to TextBox
-                        }
-                        else if (textBox.IsFocused)
-                        {
-                            Password = textBox.Text;
-                            passwordBox.Password = Password; // Manually sync to PasswordBox
-                        }
-
-                        _isUpdating = false;
-                    }
-                }
-            });
         }
 
         // Commands
@@ -144,7 +115,6 @@ namespace PersonalFinanceTracker.ViewModels
         public ICommand TogglePasswordVisibilityCommand { get; }
         public ICommand ToggleConfirmPasswordVisibilityCommand { get; }
         public ICommand PasswordChangedCommand { get; } // Must include due to password box not supporting two way binding
-        public ICommand ConfirmPasswordChangedCommand { get; } // Must include due to password box not supporting two way binding
 
         // Properties and their Notifications
         public string Username
@@ -221,7 +191,7 @@ namespace PersonalFinanceTracker.ViewModels
         // Asynchronous method to handle the sign-up process
         public async Task<bool> SignUpAsync()
         {
-            valid = true;
+            _valid = true;
             // Validate the username field
             if (string.IsNullOrWhiteSpace(Username))
                 UsernameError = "Please enter a username.";
@@ -230,7 +200,7 @@ namespace PersonalFinanceTracker.ViewModels
             else
                 UsernameError = string.Empty;  // No error if validation passes
 
-            valid &= UsernameError == string.Empty;  // Update 'valid' based on username validation
+            _valid &= UsernameError == string.Empty;  // Update 'valid' based on username validation
 
             // Validate the email field
             if (string.IsNullOrWhiteSpace(Email)) 
@@ -240,7 +210,7 @@ namespace PersonalFinanceTracker.ViewModels
             else
                 EmailError = string.Empty;
 
-            valid &= EmailError == string.Empty;  // Update 'valid' based on email validation
+            _valid &= EmailError == string.Empty;  // Update 'valid' based on email validation
 
             // Validate the password field
             if (string.IsNullOrWhiteSpace(Password))
@@ -250,7 +220,7 @@ namespace PersonalFinanceTracker.ViewModels
             else
                 PasswordError = string.Empty;  // No error if the password meets security criteria
 
-            valid &= PasswordError == string.Empty;  // Update 'valid' based on password validation
+            _valid &= PasswordError == string.Empty;  // Update 'valid' based on password validation
 
             // Validate the confirm password field
             if (string.IsNullOrWhiteSpace(ConfirmPassword))
@@ -260,10 +230,10 @@ namespace PersonalFinanceTracker.ViewModels
             else
                 ConfirmPasswordError = string.Empty;  // No error if the passwords match
 
-            valid &= ConfirmPasswordError == string.Empty;  // Update 'valid' based on confirm password validation
+            _valid &= ConfirmPasswordError == string.Empty;  // Update 'valid' based on confirm password validation
 
             // If all validations pass, create a new user and add them to the database
-            if (valid)
+            if (_valid)
             {
                 // Create a new User object with provided data
                 var user = new User { Username = Username, Email = Email, Password = Password };
@@ -285,7 +255,7 @@ namespace PersonalFinanceTracker.ViewModels
             }
 
             // Return the result of the validation checks
-            return valid;
+            return _valid;
         }
 
         // Displays a pop up window notifying of a successful sign up for 2 seconds
@@ -383,11 +353,14 @@ namespace PersonalFinanceTracker.ViewModels
         protected void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        protected bool SetProperty<T>(ref T field, T value, string propertyName = null)
+        protected bool SetProperty<T>(ref T field, T value, string? propertyName = null)
         {
             if (Equals(field, value)) return false;
             field = value;
-            OnPropertyChanged(propertyName);
+            if(propertyName != null)
+            {
+                OnPropertyChanged(propertyName);
+            }
 
             // Notify Command State Updates
             (SignUpCommand as RelayCommand)?.RaiseCanExecuteChanged();

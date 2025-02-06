@@ -17,7 +17,8 @@ namespace PersonalFinanceTracker
     /// </summary>
     public partial class App : Application
     {
-        public IServiceProvider Services { get; private set; }
+        public IServiceProvider? Services { get; private set; }
+
 
         protected override async void OnStartup(StartupEventArgs e)
         {
