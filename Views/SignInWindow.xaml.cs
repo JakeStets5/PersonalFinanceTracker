@@ -21,28 +21,20 @@ namespace PersonalFinanceTracker.Views
     /// <summary>
     /// Interaction logic for SignInWindow.xaml
     /// </summary>
-    public partial class SignInWindow : Window, INotifyPropertyChanged
+    public partial class SignInWindow : Window
     {
-        private string _passwordText;
-        public string PasswordText
-        {
-            get => _passwordText;
-            set
-            {
-                _passwordText = value;
-                OnPropertyChanged(nameof(PasswordText));
-            }
-        }
 
         private readonly UserRepository _userRepository;
 
-        public SignInWindow(UserRepository userRepository)
+        public SignInWindow(UserRepository userRepository, SignInViewModel signInViewModel)
         {
             InitializeComponent();
             _userRepository = userRepository;
 
             // Set window position relative to the main window
             CenterToMainWindow();
+
+            DataContext = signInViewModel;
         }
 
         // Centers the sign in window in the main window
@@ -55,61 +47,6 @@ namespace PersonalFinanceTracker.Views
                 // Calculate center position relative to the main window
                 this.Left = mainWindow.Left + (mainWindow.Width - this.Width) / 2;
                 this.Top = mainWindow.Top + (mainWindow.Height - this.Height) / 2;
-            }
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-
-        private void SignUpLink_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-
-            // Create the SignUpViewModel and pass the UserRepository
-            var signUpViewModel = new SignUpViewModel(_userRepository, this);
-
-            SignUpWindow signUpWindow = new SignUpWindow(signUpViewModel);
-            signUpWindow.DataContext = signUpViewModel; // Bind the ViewModel to the Window's DataContext
-
-            signUpWindow.ShowDialog();
-
-        }   
-
-        private void PasswordField_PasswordChanged(object sender, RoutedEventArgs e)
-        {
-            PasswordText = ((PasswordBox)sender).Password;
-
-            if (!string.IsNullOrEmpty(PasswordText))
-            {
-                PasswordPlaceholderText.Text = "";
-            }
-            else
-            {
-                PasswordPlaceholderText.Text = "Enter your password";
-            }
-        }
-
-        private void SignInButton_Click(object sender, RoutedEventArgs e)
-        {
-            string password = PasswordField.Password;
-            // Check if the password field is empty
-            if (string.IsNullOrEmpty(password))
-            {
-                MessageBox.Show("Please enter your password.");
-                PasswordField.Focus();  // Set focus to the password field
-                return; // Stop further execution
-            }
-
-            // Check if the username field is empty
-            if (string.IsNullOrEmpty(UsernameField.Text))
-            {
-                MessageBox.Show("Please enter your username.");
-                UsernameField.Focus();  // Set focus to the username field
-                return; // Stop further execution
             }
         }
     }

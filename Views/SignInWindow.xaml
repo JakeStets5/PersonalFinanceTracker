@@ -1,13 +1,21 @@
 ﻿<Window x:Class="PersonalFinanceTracker.Views.SignInWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:local="clr-namespace:PersonalFinanceTracker.Views"
         xmlns:uiscripts="clr-namespace:PersonalFinanceTracker.UIScripts"
         Title="Sign In"
-        Height="300" Width="350"
+        Height="350" Width="350"
         Background="#1c2b2e">
     <!-- Change Background Color -->
     <Window.Resources>
+        <uiscripts:ErrorMessageVisibilityConverter x:Key="ErrorMessageVisibilityConverter" />
         <uiscripts:PlaceholderTextVisibilityConverter x:Key="PlaceholderTextVisibilityConverter" />
+        <uiscripts:InvertedBoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter"/>
+        <uiscripts:MultiParameterConverter x:Key="MultiParameterConverter"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <!-- Username Field Style -->
         <Style TargetType="TextBox">
             <!-- Default properties -->
@@ -81,13 +89,22 @@
             </Setter>
         </Style>
 
+        <!-- Error Message Style -->
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#A71F1A" />
+            <Setter Property="FontFamily" Value="Montserrat" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="TextDecorations" Value="Underline" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        </Style>
 
         <!-- Button Style -->
         <Style TargetType="Button">
             <Setter Property="Foreground" Value="White" />
             <Setter Property="FontFamily" Value="Montserrat" />
             <Setter Property="FontSize" Value="14" />
-            <Setter Property="Background" Value="#5A1807" />
+            <Setter Property="Background" Value="Transparent" />
             <!-- Button Background Color -->
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="Padding" Value="10" />
@@ -114,20 +131,12 @@
             <Setter Property="FontSize" Value="14" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         </Style>
-
-        <!-- TextBlock Link Style -->
-        <Style TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#5A1807" />
-            <Setter Property="FontFamily" Value="Montserrat" />
-            <Setter Property="FontSize" Value="12" />
-            <Setter Property="TextDecorations" Value="Underline" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-        </Style>
     </Window.Resources>
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -137,8 +146,11 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
+        <TextBlock x:Name="UsernameErrorField" Grid.Row="0" Margin="0,0,0,10" Visibility="{Binding ErrorMessageVisibilityConverter}" Text="{Binding UsernameError}"/>
+        <TextBlock x:Name="PasswordErrorField" Grid.Row="1" Margin="0,0,0,10" Visibility="{Binding ErrorMessageVisibilityConverter}" Text="{Binding PasswordError}"/>
+
         <!-- Username Field -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+        <StackPanel Grid.Row="2" Margin="0,0,0,10">
             <Label Content="Username" />
             <Grid>
                 <TextBox x:Name="UsernameField" />
@@ -152,28 +164,71 @@
         </StackPanel>
 
         <!-- Password Field -->
-        <StackPanel Grid.Row="1" Margin="0,0,0,10">
+        <StackPanel Grid.Row="3" Margin="0,0,0,10">
             <Label Content="Password" />
             <Grid>
                 <!-- Password Box -->
-                <PasswordBox x:Name="PasswordField" PasswordChanged="PasswordField_PasswordChanged" />
+                <PasswordBox x:Name="PasswordField" PasswordChar="●"
+                 Visibility="{Binding IsPasswordVisible, Converter={StaticResource InvertedBoolToVisibilityConverter}}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="PasswordChanged">
+                            <!-- Invokes a command in the ViewModel when the event is triggered -->
+                            <i:InvokeCommandAction Command="{Binding PasswordChangedCommand}">
+                                <i:InvokeCommandAction.CommandParameter>
+                                    <!-- Passing multiple parameters to the command using MultiBinding -->
+                                    <MultiBinding Converter="{StaticResource MultiParameterConverter}">
+                                        <Binding ElementName="PasswordField" />
+                                        <Binding ElementName="PasswordTextBox" />
+                                    </MultiBinding>
+                                </i:InvokeCommandAction.CommandParameter>
+                            </i:InvokeCommandAction>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </PasswordBox>
 
+                <!-- Placeholder Text -->
                 <TextBlock x:Name="PasswordPlaceholderText"  Text="Enter your password"
                            Foreground="Black"
                            Margin="10,0,0,0"
                            IsHitTestVisible="False"
                            VerticalAlignment="Center"
-                           Visibility="{Binding PasswordText, Converter={StaticResource PlaceholderTextVisibilityConverter}}" />
+                           Visibility="{Binding IsPasswordPlaceholderVisible, Converter={StaticResource PlaceholderTextVisibilityConverter}}" />
+
+                <!-- Text Box (visible password) -->
+                <TextBox x:Name="PasswordTextBox" 
+                         Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Visibility="{Binding IsPasswordVisible, Converter={StaticResource BoolToVisibilityConverter}}">         
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="TextChanged">
+                            <i:InvokeCommandAction Command="{Binding PasswordChangedCommand}">
+                                <i:InvokeCommandAction.CommandParameter>
+                                    <MultiBinding Converter="{StaticResource MultiParameterConverter}">
+                                        <Binding ElementName="PasswordField" />
+                                        <Binding ElementName="PasswordTextBox" />
+                                    </MultiBinding>
+                                </i:InvokeCommandAction.CommandParameter>
+                            </i:InvokeCommandAction>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </TextBox>
+
+                <!-- Toggle Button -->
+                <Button x:Name="TogglePasswordButton" Width="30" Height="30"
+			            HorizontalAlignment="Right" VerticalAlignment="Center"
+		                Command="{Binding TogglePasswordVisibilityCommand}"
+                        CommandParameter="{Binding ElementName=TogglePasswordButton}">
+                    <Image x:Name="TogglePasswordIcon" Width="20" Height="20"
+			   Source="../Assets/Images/SignUpWindowIcons/closed_eye_icon.png" />
+                </Button>
             </Grid>
         </StackPanel>
 
         <!-- Sign In Button -->
-        <Button x:Name="SignInButton" Height="35" Grid.Row="2" Content="Sign In" Foreground="White" Background="#597a7f" Click="SignInButton_Click"/>
+        <Button x:Name="SignInButton" Height="35" Grid.Row="4" Content="Sign In" Foreground="White" Background="#597a7f"/>
 
         <!-- Sign Up Link -->
-        <TextBlock Grid.Row="3" Text="Don't have an account? Sign Up" 
+        <TextBlock Grid.Row="5" Text="Don't have an account? Sign Up" 
                    Foreground="White"
-                   HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10"
-                   MouseLeftButtonUp="SignUpLink_Click" />
+                   HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10"/>
     </Grid>
 </Window>

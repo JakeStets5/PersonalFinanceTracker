@@ -42,7 +42,7 @@ namespace PersonalFinanceTracker.ViewModels
         public event PropertyChangedEventHandler? PropertyChanged;
         public event Action? OnSignUpCompleted; // Event that notifies of completion
 
-        public SignUpViewModel(IUserRepository userRepository, Window signUpWindow)
+        public SignUpViewModel(IUserRepository userRepository)
         {
             _userRepository = userRepository;
 

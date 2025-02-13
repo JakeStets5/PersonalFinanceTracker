@@ -11,6 +11,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using PersonalFinanceTracker.Backend.Repositories;
+using PersonalFinanceTracker.ViewModels;
 using PersonalFinanceTracker.Views;
 using Serilog;
 
@@ -70,7 +71,8 @@ namespace PersonalFinanceTracker.Views
 
         private void SignInButton_Click(object sender, RoutedEventArgs e)
         {
-            SignInWindow signInWindow = new SignInWindow(_userRepository);
+            var signInViewModel = new SignInViewModel(_userRepository);
+            SignInWindow signInWindow = new SignInWindow(_userRepository, signInViewModel);
             signInWindow.ShowDialog();
         }
 
