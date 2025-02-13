@@ -146,20 +146,39 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <TextBlock x:Name="UsernameErrorField" Grid.Row="0" Margin="0,0,0,10" Visibility="{Binding ErrorMessageVisibilityConverter}" Text="{Binding UsernameError}"/>
-        <TextBlock x:Name="PasswordErrorField" Grid.Row="1" Margin="0,0,0,10" Visibility="{Binding ErrorMessageVisibilityConverter}" Text="{Binding PasswordError}"/>
+        <!-- Error Messages -->
+        <StackPanel Grid.Row="0">
+            <TextBlock x:Name="UsernameErrorField" 
+               Text= "{Binding UsernameError}"
+               Visibility="{Binding UsernameError, Converter={StaticResource ErrorMessageVisibilityConverter}}"
+               TextDecorations="None"
+               Cursor="Arrow"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1">
+            <TextBlock x:Name="PasswordErrorField" 
+               Text="{Binding PasswordError}" 
+               Visibility="{Binding PasswordError, Converter={StaticResource ErrorMessageVisibilityConverter}}" 
+               TextDecorations="None"
+               TextWrapping="Wrap"
+               Cursor="Arrow"/>
+        </StackPanel>
 
         <!-- Username Field -->
         <StackPanel Grid.Row="2" Margin="0,0,0,10">
-            <Label Content="Username" />
+            <Label Content="Username*" />
             <Grid>
-                <TextBox x:Name="UsernameField" />
+                <!-- Username Box -->
+                <TextBox x:Name="UsernameField"
+                 Text="{Binding Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!-- Placeholder Text -->
                 <TextBlock Text="Enter your username" 
-                           Foreground="Black" 
-                           Margin="10,0,0,0" 
-                           IsHitTestVisible="False"
-                           VerticalAlignment="Center"
-                           Visibility="{Binding Text, ElementName=UsernameField, Converter={StaticResource PlaceholderTextVisibilityConverter}}" />
+               Foreground="Black" 
+               Margin="10,0,0,0" 
+               IsHitTestVisible="False"
+               VerticalAlignment="Center"
+               Visibility="{Binding Text, ElementName=UsernameField, Converter={StaticResource PlaceholderTextVisibilityConverter}}" />
             </Grid>
         </StackPanel>
 
@@ -228,8 +247,11 @@
                 Command="{Binding SignInCommand}"/>
 
         <!-- Sign Up Link -->
-        <TextBlock Grid.Row="5" Text="Don't have an account? Sign Up" 
-                   Foreground="White"
-                   HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10"/>
+        <TextBlock Grid.Row="5" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10">
+    <Hyperlink Command="{Binding OpenSignUpCommand}" Foreground="White">
+        <Run Text="Don't have an account? Sign Up"/>
+    </Hyperlink>
+        </TextBlock>
+
     </Grid>
 </Window>

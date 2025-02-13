@@ -5,12 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PersonalFinanceTracker.Backend.Services.Interfaces
+namespace PersonalFinanceTracker.Backend.Interfaces
 {
-    public interface IUserRepository
+    public interface IAwsDynamoDbService
     {
         Task AddUserAsync(User user);
-        Task<bool> UserExistsAsync(string username);
         Task<User?> GetUserByIdAsync(string userId);
     }
 }

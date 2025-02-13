@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using PersonalFinanceTracker.Commands;
-using PersonalFinanceTracker.Backend.Services.Interfaces;
 using PersonalFinanceTracker.Views;
 using PersonalFinanceTracker.Backend.Models;
 using System.Linq;
@@ -12,6 +10,9 @@ using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using System.Runtime.CompilerServices;
+using PersonalFinanceTracker.Backend.Interfaces;
+using PersonalFinanceTracker.Backend.Commands;
 
 namespace PersonalFinanceTracker.ViewModels
 {
@@ -26,12 +27,16 @@ namespace PersonalFinanceTracker.ViewModels
         private bool _valid = true;
         private bool _isUpdating = false;
 
-        private readonly IUserRepository _userRepository;
+        private readonly IUserRepository _userRepository; // To help with user(model) and database interactions
+
+        private readonly INavigationService _navigationService; // To help with window navigation
 
         public bool IsPasswordPlaceholderVisible => string.IsNullOrEmpty(TempPassword); // To make the placeholder text for password vanish
         public char PasswordMaskChar => IsPasswordVisible ? '\0' : '●';
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        public Action? CloseAction { get; set; } // Delegate to close the window
 
         public ICommand SignInCommand { get; }
         public ICommand OpenSignUpCommand { get; }
@@ -56,7 +61,7 @@ namespace PersonalFinanceTracker.ViewModels
             get => _password;
             set
             {
-                if (SetProperty(ref _password, value, nameof(Password)))
+                if (SetProperty(ref _password, value))
                 {
                     OnPropertyChanged(nameof(IsPasswordPlaceholderVisible)); // Notify UI of placeholder visibility change
                 }
@@ -68,7 +73,7 @@ namespace PersonalFinanceTracker.ViewModels
             get => _tempPassword;
             set
             {
-                if (SetProperty(ref _tempPassword, value, nameof(TempPassword)))
+                if (SetProperty(ref _tempPassword, value))
                 {
                     OnPropertyChanged(nameof(IsPasswordPlaceholderVisible)); // Notify UI of placeholder visibility change
                 }
@@ -92,9 +97,10 @@ namespace PersonalFinanceTracker.ViewModels
             }
         }
 
-        public SignInViewModel(IUserRepository userRepository)
+        public SignInViewModel(IUserRepository userRepository, INavigationService navigationService)
         {
             _userRepository = userRepository;
+            _navigationService = navigationService;
 
             // When the password is changed...
             PasswordChangedCommand = new RelayCommand<object>(parameter =>
@@ -125,10 +131,14 @@ namespace PersonalFinanceTracker.ViewModels
                 }
             });
 
+            // When the Sign up link is clicked...
+            OpenSignUpCommand = new RelayCommand(OpenSignUp);
+
             // When the Sign In button is clicked...
             SignInCommand = new RelayCommand(async () => await SignInAsync());
 
             TogglePasswordVisibilityCommand = new RelayCommand<Button>(TogglePasswordVisibility);
+            _navigationService = navigationService;
         }
 
         private void TogglePasswordVisibility(Button button)
@@ -147,58 +157,71 @@ namespace PersonalFinanceTracker.ViewModels
             }
         }
 
+        // Handles the sign up link click. Opens the sign up window
+        private void OpenSignUp()
+        {
+            _navigationService.OpenSignUpWindow();
+            CloseAction?.Invoke();
+        }
+
+        // Handles the sign in button click
         private async Task<bool> SignInAsync()
         {
             _valid = true;
+
             // Validate the username field
             if (string.IsNullOrWhiteSpace(Username))
                 UsernameError = "Please enter a username.";
-            else if (await _userRepository.UserExistsAsync(Username))
-                UsernameError = "Username already exists."; // Error if the username already exists in the database
             else
-                UsernameError = string.Empty;  // No error if validation passes
+                UsernameError = string.Empty;
 
-            _valid &= UsernameError == string.Empty;  // Update 'valid' based on username validation
+            _valid &= UsernameError == string.Empty;
 
             // Validate the password field
             if (string.IsNullOrWhiteSpace(Password))
-                PasswordError = "Please enter a password";
-            else if (!ValidatePassword(Password))
-                PasswordError = "Password must be at least 8 characters, include a number, uppercase letter, and special character.";
+                PasswordError = "Please enter a password.";
             else
-                PasswordError = string.Empty;  // No error if the password meets security criteria
+                PasswordError = string.Empty;
 
-            _valid &= PasswordError == string.Empty;  // Update 'valid' based on password validation
+            _valid &= PasswordError == string.Empty;
 
-            // If all validations pass, create a new user and add them to the database
-            if (_valid)
+            if (!_valid) return false; // Stop if basic validation fails
+
+            try
             {
-                // Create a new User object with provided data
-                var user = new User { Username = Username, Password = Password };
+                // Retrieve user from the repository
+                var user = await _userRepository.GetUserByUsernameAsync(Username);
 
-                // Asynchronously save the user to the repository
-                try
+                if (user == null)
                 {
-                    await _userRepository.AddUserAsync(user);
+                    UsernameError = "Username not found.";
+                    return false;
                 }
-                catch (Exception ex)
+                else
                 {
-                    // Handle errors if needed
-                    Console.WriteLine(ex.Message);
+                    // Verify password (use hashing if applicable)
+                    if (!BCrypt.Net.BCrypt.Verify(Password, user.Password))  // Use hashing instead of plain text comparison
+                    {
+                        PasswordError = "Incorrect password.";
+                        return false;
+                    }
                 }
 
-                // Show success pop-up and close the sign-up window
-                OnSignUpCompleted?.Invoke();
+                // Authentication successful
+                Console.WriteLine("Login successful!");
+                return true;
             }
-
-            // Return the result of the validation checks
-            return _valid;
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during sign-in: {ex.Message}");
+                return false;
+            }
         }
 
         protected void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        protected bool SetProperty<T>(ref T field, T value, string? propertyName = null)
+        protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
         {
             if (Equals(field, value)) return false;
             field = value;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace PersonalFinanceTracker.Commands
+namespace PersonalFinanceTracker.Backend.Commands
 {
     // RelayCommand allows the ViewModel to handle UI commands without needing code in the code-behind.
     // It provides a way to execute actions and control whether they are enabled, supporting the MVVM pattern.

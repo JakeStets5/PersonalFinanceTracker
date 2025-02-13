@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PersonalFinanceTracker.Backend.Repositories;
-using PersonalFinanceTracker.Backend.Services.Interfaces;
 using PersonalFinanceTracker.Backend.Services;
 using PersonalFinanceTracker.Views;
 using Serilog;
@@ -9,6 +8,9 @@ using System.Data;
 using System.Windows;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using PersonalFinanceTracker.Backend.Interfaces;
+using PersonalFinanceTracker.Backend.Factories;
+using PersonalFinanceTracker.ViewModels;
 
 namespace PersonalFinanceTracker
 {
@@ -59,12 +61,23 @@ namespace PersonalFinanceTracker
         private void ConfigureServices(IServiceCollection services)
         {
             services.AddTransient<IUserRepository, UserRepository>();  // Registering the user repo interface and its implementation
+            services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<IAmazonDynamoDB, AmazonDynamoDBClient>();
             services.AddTransient<IAwsDynamoDbService, AwsDynamoDbService>();
             services.AddTransient<UserRepository>();  // Register UserRepository
+            services.AddTransient<NavigationService>();  // Register UserRepository
             services.AddSingleton<DynamoDBContext>();
             services.AddTransient<MainWindow>();  // Register MainWindow
             services.AddLogging();  // Add logging
+
+            // DI for generating a new instance of the sign up window
+            services.AddTransient<SignUpViewModel>();
+            services.AddSingleton<IWindowFactory>(provider =>
+                new WindowFactory(() => provider.GetRequiredService<SignUpViewModel>(), provider)
+            );
+
+            services.AddSingleton<NavigationService>();
+
 
         }
     }

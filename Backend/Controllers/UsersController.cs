@@ -31,7 +31,7 @@ namespace PersonalFinanceTracker.Backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(string id)
         {
-            var user = await _userRepository.GetUserByIdAsync(id);
+            var user = await _userRepository.GetUserByUsernameAsync(id);
             if (user == null)
                 return NotFound("User not found.");
 

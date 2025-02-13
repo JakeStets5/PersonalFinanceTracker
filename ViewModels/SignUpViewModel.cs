@@ -3,16 +3,17 @@ using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using PersonalFinanceTracker.Commands;
 using PersonalFinanceTracker.Backend.Models;
 using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Threading;
 using System.Reflection.Metadata;
-using PersonalFinanceTracker.Backend.Services.Interfaces;
 using PersonalFinanceTracker.Views;
 using System.Windows.Media.Imaging;
 using BCrypt.Net;
+using PersonalFinanceTracker.Backend.Interfaces;
+using PersonalFinanceTracker.Backend.Commands;
+using System.Runtime.CompilerServices;
 
 namespace PersonalFinanceTracker.ViewModels
 {
@@ -92,15 +93,26 @@ namespace PersonalFinanceTracker.ViewModels
         public string Password
         {
             get => _password;
-            set => SetProperty(ref _password, value);
+            set
+            {
+                if (SetProperty(ref _password, value))
+                {
+                    OnPropertyChanged(nameof(IsPasswordPlaceholderVisible)); // Notify UI of placeholder visibility change
+                }
+            }
         }
 
         public string TempPassword
         {
             get => _tempPassword;
-            set => SetProperty(ref _tempPassword, value);
+            set
+            {
+                if (SetProperty(ref _tempPassword, value))
+                {
+                    OnPropertyChanged(nameof(IsPasswordPlaceholderVisible)); // Notify UI of placeholder visibility change
+                }
+            }
         }
-
 
         public string PasswordError
         {
@@ -111,13 +123,25 @@ namespace PersonalFinanceTracker.ViewModels
         public string ConfirmPassword
         {
             get => _confirmPassword;
-            set => SetProperty(ref _confirmPassword, value);
+            set
+            {
+                if (SetProperty(ref _confirmPassword, value))
+                {
+                    OnPropertyChanged(nameof(IsConfirmPasswordPlaceholderVisible)); // Notify UI of placeholder visibility change
+                }
+            }
         }
 
         public string ConfirmTempPassword
         {
             get => _tempConfirmPassword;
-            set => SetProperty(ref _tempConfirmPassword, value);
+            set
+            {
+                if (SetProperty(ref _tempConfirmPassword, value))
+                {
+                    OnPropertyChanged(nameof(IsConfirmPasswordPlaceholderVisible)); // Notify UI of placeholder visibility change
+                }
+            }
         }
 
         public string ConfirmPasswordError 
@@ -342,7 +366,7 @@ namespace PersonalFinanceTracker.ViewModels
         protected void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        protected bool SetProperty<T>(ref T field, T value, string? propertyName = null)
+        protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
         {
             if (Equals(field, value)) return false;
             field = value;

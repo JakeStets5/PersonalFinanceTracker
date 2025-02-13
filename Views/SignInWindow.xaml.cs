@@ -35,6 +35,7 @@ namespace PersonalFinanceTracker.Views
             CenterToMainWindow();
 
             DataContext = signInViewModel;
+            signInViewModel.CloseAction = Close;
         }
 
         // Centers the sign in window in the main window

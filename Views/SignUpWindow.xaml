@@ -151,7 +151,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         
-        <!-- Error Message -->
+        <!-- Error Messages -->
 		<StackPanel Grid.Row="0">
 			<TextBlock x:Name="UsernameErrorField" 
                        Text= "{Binding UsernameError}"

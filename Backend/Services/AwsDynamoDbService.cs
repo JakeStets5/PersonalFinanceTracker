@@ -4,7 +4,7 @@ using Amazon.DynamoDBv2.DocumentModel;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using PersonalFinanceTracker.Backend.Services.Interfaces;
+using PersonalFinanceTracker.Backend.Interfaces;
 
 namespace PersonalFinanceTracker.Backend.Services
 {

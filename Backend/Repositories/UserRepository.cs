@@ -1,9 +1,9 @@
 ﻿using PersonalFinanceTracker.Backend.Models;
-using PersonalFinanceTracker.Backend.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2.DataModel;
+using PersonalFinanceTracker.Backend.Interfaces;
 
 namespace PersonalFinanceTracker.Backend.Repositories
 {
@@ -44,9 +44,9 @@ namespace PersonalFinanceTracker.Backend.Repositories
             return existingUser != null;
         }
 
-        public async Task<User?> GetUserByIdAsync(string userId)
+        public async Task<User?> GetUserByUsernameAsync(string username)
         {
-            return await _dynamoDbService.GetUserByIdAsync(userId);
+            return await _context.LoadAsync<User>(username);
         }
     }
 }

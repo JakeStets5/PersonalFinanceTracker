@@ -8,12 +8,13 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 using PersonalFinanceTracker.Backend.Repositories;
 using PersonalFinanceTracker.ViewModels;
 using PersonalFinanceTracker.Views;
 using Serilog;
+using PersonalFinanceTracker.Backend.Services;
+using PersonalFinanceTracker.Backend.Interfaces;
 
 namespace PersonalFinanceTracker.Views
 {
@@ -24,11 +25,14 @@ namespace PersonalFinanceTracker.Views
     {
         private readonly UserRepository _userRepository;
 
-        public MainWindow(UserRepository userRepository)
+        private readonly INavigationService _navigationService;
+
+        public MainWindow(UserRepository userRepository, INavigationService navigationService)
         {
             try
             {
                 _userRepository = userRepository;
+                _navigationService = navigationService;
                 InitializeComponent();
             }
             catch (Exception ex)
@@ -71,7 +75,7 @@ namespace PersonalFinanceTracker.Views
 
         private void SignInButton_Click(object sender, RoutedEventArgs e)
         {
-            var signInViewModel = new SignInViewModel(_userRepository);
+            var signInViewModel = new SignInViewModel(_userRepository, _navigationService);
             SignInWindow signInWindow = new SignInWindow(_userRepository, signInViewModel);
             signInWindow.ShowDialog();
         }
