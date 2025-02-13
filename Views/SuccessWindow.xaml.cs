@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PersonalFinanceTracker.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,12 +20,13 @@ namespace PersonalFinanceTracker.Views
     /// </summary>
     public partial class SuccessWindow : Window
     {
-        public SuccessWindow()
+        public SuccessWindow(SuccessWindowViewModel viewModel)
         {
             InitializeComponent();
 
             // Set window position relative to the main window
             CenterToMainWindow();
+            DataContext = viewModel;
         }
 
         // Centers the success window in the main window

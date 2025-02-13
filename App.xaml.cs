@@ -67,6 +67,7 @@ namespace PersonalFinanceTracker
             services.AddTransient<UserRepository>();  // Register UserRepository
             services.AddTransient<NavigationService>();  // Register UserRepository
             services.AddSingleton<DynamoDBContext>();
+            services.AddSingleton<IDialogService, DialogService>();
             services.AddTransient<MainWindow>();  // Register MainWindow
             services.AddLogging();  // Add logging
 

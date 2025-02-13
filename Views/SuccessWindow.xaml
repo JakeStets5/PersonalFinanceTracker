@@ -5,8 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PersonalFinanceTracker.Views"
         mc:Ignorable="d"
-        Title="SuccessWindow" Height="100" Width="200">
+        Title="SuccessWindow" Height="100" Width="200"
+        WindowStyle="None" 
+        ResizeMode="NoResize"
+        AllowsTransparency="True"
+        Background="Transparent">
     <Grid Background="#1c2b2e">
-        <TextBlock Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" Text="Sign-Up Successful!" />
+        <TextBlock Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" Text="{Binding SuccessMessage}" />
     </Grid>
 </Window>

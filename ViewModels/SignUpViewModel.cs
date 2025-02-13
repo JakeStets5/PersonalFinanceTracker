@@ -20,6 +20,7 @@ namespace PersonalFinanceTracker.ViewModels
     public class SignUpViewModel : INotifyPropertyChanged
     {
         private readonly IUserRepository _userRepository;
+        private readonly IDialogService _dialogService;
 
         private string _username = "";
         private string _usernameError = "";
@@ -44,8 +45,9 @@ namespace PersonalFinanceTracker.ViewModels
         public event PropertyChangedEventHandler? PropertyChanged;
         public event Action? OnSignUpCompleted; // Event that notifies of completion
 
-        public SignUpViewModel(IUserRepository userRepository)
+        public SignUpViewModel(IUserRepository userRepository, IDialogService dialogService)
         {
+            _dialogService = dialogService;
             _userRepository = userRepository;
 
             // When the sign up button is clicked...
@@ -59,6 +61,7 @@ namespace PersonalFinanceTracker.ViewModels
 
             // When either password is changed...
             PasswordChangedCommand = new RelayCommand<object>(parameter => HandlePasswordChanged(parameter));
+            _dialogService = dialogService;
         }
 
         // Commands
@@ -264,32 +267,11 @@ namespace PersonalFinanceTracker.ViewModels
 
                 // Show success pop-up and close the sign-up window
                 OnSignUpCompleted?.Invoke();
-                ShowSuccessPopUp();
+                _dialogService.ShowSuccessMessage("Sign Up Successful!");
             }
 
             // Return the result of the validation checks
             return _valid;
-        }
-
-        // Displays a pop up window notifying of a successful sign up for 2 seconds
-        private void ShowSuccessPopUp()
-        {
-            SuccessWindow successWindow = new SuccessWindow();
-            successWindow.Show();  // Show the success window
-
-            // Create a timer to close the success window after 2 seconds
-            DispatcherTimer timer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromSeconds(2)
-            };
-
-            timer.Tick += (sender, args) =>
-            {
-                successWindow.Close();  // Close the pop-up window after 2 seconds
-                timer.Stop();  // Stop the timer
-            };
-
-            timer.Start();
         }
 
         // Ensures the password reaches the requirements

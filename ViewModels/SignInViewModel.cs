@@ -31,6 +31,8 @@ namespace PersonalFinanceTracker.ViewModels
 
         private readonly INavigationService _navigationService; // To help with window navigation
 
+        private readonly IDialogService _dialogService; // For any pop up dialog
+
         public bool IsPasswordPlaceholderVisible => string.IsNullOrEmpty(TempPassword); // To make the placeholder text for password vanish
         public char PasswordMaskChar => IsPasswordVisible ? '\0' : '●';
 
@@ -97,39 +99,14 @@ namespace PersonalFinanceTracker.ViewModels
             }
         }
 
-        public SignInViewModel(IUserRepository userRepository, INavigationService navigationService)
+        public SignInViewModel(IUserRepository userRepository, INavigationService navigationService, IDialogService dialogService)
         {
             _userRepository = userRepository;
             _navigationService = navigationService;
+            _dialogService = dialogService;
 
             // When the password is changed...
-            PasswordChangedCommand = new RelayCommand<object>(parameter =>
-            {
-                if (parameter is object[] values && values.Length == 2)
-                {
-                    var passwordBox = values[0] as PasswordBox;
-                    var textBox = values[1] as TextBox;
-
-                    if (textBox != null && passwordBox != null)
-                    {
-                        if (_isUpdating) return;
-                        _isUpdating = true;
-
-                        if (passwordBox.IsFocused)
-                        {
-                            TempPassword = passwordBox.Password;
-                            textBox.Text = TempPassword; // Manually sync to TextBox
-                        }
-                        else if (textBox.IsFocused)
-                        {
-                            TempPassword = textBox.Text;
-                            passwordBox.Password = TempPassword; // Manually sync to PasswordBox
-                        }
-
-                        _isUpdating = false;
-                    }
-                }
-            });
+            PasswordChangedCommand = new RelayCommand<object>(HandlePasswordChanged);
 
             // When the Sign up link is clicked...
             OpenSignUpCommand = new RelayCommand(OpenSignUp);
@@ -139,6 +116,34 @@ namespace PersonalFinanceTracker.ViewModels
 
             TogglePasswordVisibilityCommand = new RelayCommand<Button>(TogglePasswordVisibility);
             _navigationService = navigationService;
+        }
+
+        private void HandlePasswordChanged(object parameter)
+        {
+            if (parameter is object[] values && values.Length == 2)
+            {
+                var passwordBox = values[0] as PasswordBox;
+                var textBox = values[1] as TextBox;
+
+                if (textBox != null && passwordBox != null)
+                {
+                    if (_isUpdating) return;
+                    _isUpdating = true;
+
+                    if (passwordBox.IsFocused)
+                    {
+                        TempPassword = passwordBox.Password;
+                        textBox.Text = TempPassword; // Manually sync to TextBox
+                    }
+                    else if (textBox.IsFocused)
+                    {
+                        TempPassword = textBox.Text;
+                        passwordBox.Password = TempPassword; // Manually sync to PasswordBox
+                    }
+
+                    _isUpdating = false;
+                }
+            }
         }
 
         private void TogglePasswordVisibility(Button button)
@@ -208,7 +213,8 @@ namespace PersonalFinanceTracker.ViewModels
                 }
 
                 // Authentication successful
-                Console.WriteLine("Login successful!");
+                _dialogService.ShowSuccessMessage("Sign In Successful!");
+                CloseAction?.Invoke();
                 return true;
             }
             catch (Exception ex)
