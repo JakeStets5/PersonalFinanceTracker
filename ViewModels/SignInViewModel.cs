@@ -125,6 +125,9 @@ namespace PersonalFinanceTracker.ViewModels
                 }
             });
 
+            // When the Sign In button is clicked...
+            SignInCommand = new RelayCommand(async () => await SignInAsync());
+
             TogglePasswordVisibilityCommand = new RelayCommand<Button>(TogglePasswordVisibility);
         }
 
@@ -142,6 +145,54 @@ namespace PersonalFinanceTracker.ViewModels
 
                 image.Source = new BitmapImage(new Uri(newIconPath, UriKind.Relative));
             }
+        }
+
+        private async Task<bool> SignInAsync()
+        {
+            _valid = true;
+            // Validate the username field
+            if (string.IsNullOrWhiteSpace(Username))
+                UsernameError = "Please enter a username.";
+            else if (await _userRepository.UserExistsAsync(Username))
+                UsernameError = "Username already exists."; // Error if the username already exists in the database
+            else
+                UsernameError = string.Empty;  // No error if validation passes
+
+            _valid &= UsernameError == string.Empty;  // Update 'valid' based on username validation
+
+            // Validate the password field
+            if (string.IsNullOrWhiteSpace(Password))
+                PasswordError = "Please enter a password";
+            else if (!ValidatePassword(Password))
+                PasswordError = "Password must be at least 8 characters, include a number, uppercase letter, and special character.";
+            else
+                PasswordError = string.Empty;  // No error if the password meets security criteria
+
+            _valid &= PasswordError == string.Empty;  // Update 'valid' based on password validation
+
+            // If all validations pass, create a new user and add them to the database
+            if (_valid)
+            {
+                // Create a new User object with provided data
+                var user = new User { Username = Username, Password = Password };
+
+                // Asynchronously save the user to the repository
+                try
+                {
+                    await _userRepository.AddUserAsync(user);
+                }
+                catch (Exception ex)
+                {
+                    // Handle errors if needed
+                    Console.WriteLine(ex.Message);
+                }
+
+                // Show success pop-up and close the sign-up window
+                OnSignUpCompleted?.Invoke();
+            }
+
+            // Return the result of the validation checks
+            return _valid;
         }
 
         protected void OnPropertyChanged(string propertyName) =>

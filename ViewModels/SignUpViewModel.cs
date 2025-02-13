@@ -12,6 +12,7 @@ using System.Reflection.Metadata;
 using PersonalFinanceTracker.Backend.Services.Interfaces;
 using PersonalFinanceTracker.Views;
 using System.Windows.Media.Imaging;
+using BCrypt.Net;
 
 namespace PersonalFinanceTracker.ViewModels
 {
@@ -56,58 +57,7 @@ namespace PersonalFinanceTracker.ViewModels
             ToggleConfirmPasswordVisibilityCommand = new RelayCommand<Button>(ToggleConfirmPasswordVisibility);
 
             // When either password is changed...
-            PasswordChangedCommand = new RelayCommand<object>(parameter => 
-            {
-                if (parameter is object[] values && values.Length == 3)
-                {
-                    var passwordBox = values[0] as PasswordBox;
-                    var textBox = values[1] as TextBox;
-                    var identifier = values[2] as string;
-
-                    if (identifier == "MainPassword")
-                    {
-                        if (textBox != null && passwordBox != null)
-                        {
-                            if (_isUpdating) return;
-                            _isUpdating = true;
-
-                            if (passwordBox.IsFocused)
-                            {
-                                Password = passwordBox.Password;
-                                textBox.Text = Password; // Manually sync to TextBox
-                            }
-                            else if (textBox.IsFocused)
-                            {
-                                Password = textBox.Text;
-                                passwordBox.Password = Password; // Manually sync to PasswordBox
-                            }
-
-                            _isUpdating = false;
-                        }
-                    }
-                    else if (identifier == "ConfirmPassword")
-                    {
-                        if (textBox != null && passwordBox != null)
-                        {
-                            if (_isUpdating) return;
-                            _isUpdating = true;
-
-                            if (passwordBox.IsFocused)
-                            {
-                                ConfirmPassword = passwordBox.Password;
-                                textBox.Text = ConfirmPassword; // Manually sync to TextBox
-                            }
-                            else if (textBox.IsFocused)
-                            {
-                                ConfirmPassword = textBox.Text;
-                                passwordBox.Password = ConfirmPassword; // Manually sync to PasswordBox
-                            }
-
-                            _isUpdating = false;
-                        }
-                    }
-                }
-            });
+            PasswordChangedCommand = new RelayCommand<object>(parameter => HandlePasswordChanged(parameter));
         }
 
         // Commands
@@ -188,6 +138,43 @@ namespace PersonalFinanceTracker.ViewModels
             set => SetProperty(ref _isConfirmPasswordVisible, value);
         }
 
+        // Method to handle when the user updates the password fields
+        private void HandlePasswordChanged(object parameter)
+        {
+            if (parameter is object[] values && values.Length == 3)
+            {
+                var passwordBox = values[0] as PasswordBox;
+                var textBox = values[1] as TextBox;
+                var identifier = values[2] as string;
+
+                if (passwordBox == null || textBox == null || string.IsNullOrEmpty(identifier)) return;
+
+                if (_isUpdating) return;
+                _isUpdating = true;
+
+                if (passwordBox.IsFocused)
+                {
+                    if (identifier == "MainPassword")
+                        Password = passwordBox.Password;
+                    else if (identifier == "ConfirmPassword")
+                        ConfirmPassword = passwordBox.Password;
+
+                    textBox.Text = passwordBox.Password; // Manually sync to TextBox
+                }
+                else if (textBox.IsFocused)
+                {
+                    if (identifier == "MainPassword")
+                        Password = textBox.Text;
+                    else if (identifier == "ConfirmPassword")
+                        ConfirmPassword = textBox.Text;
+
+                    passwordBox.Password = textBox.Text; // Manually sync to PasswordBox
+                }
+
+                _isUpdating = false;
+            }
+        }
+
         // Asynchronous method to handle the sign-up process
         public async Task<bool> SignUpAsync()
         {
@@ -235,8 +222,10 @@ namespace PersonalFinanceTracker.ViewModels
             // If all validations pass, create a new user and add them to the database
             if (_valid)
             {
+                // Hash the password using BCrypt for security
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(Password);
                 // Create a new User object with provided data
-                var user = new User { Username = Username, Email = Email, Password = Password };
+                var user = new User { Username = Username, Email = Email, Password = hashedPassword };
 
                 // Asynchronously save the user to the repository
                 try

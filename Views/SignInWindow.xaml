@@ -224,7 +224,8 @@
         </StackPanel>
 
         <!-- Sign In Button -->
-        <Button x:Name="SignInButton" Height="35" Grid.Row="4" Content="Sign In" Foreground="White" Background="#597a7f"/>
+        <Button x:Name="SignInButton" Height="35" Grid.Row="4" Content="Sign In" Foreground="White" Background="#597a7f"
+                Command="{Binding SignInCommand}"/>
 
         <!-- Sign Up Link -->
         <TextBlock Grid.Row="5" Text="Don't have an account? Sign Up" 
