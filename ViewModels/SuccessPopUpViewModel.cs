@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace PersonalFinanceTracker.ViewModels
 {
-    public class SuccessWindowViewModel : ViewModelBase
+    public class SuccessPopUpViewModel : ViewModelBase
     {
         private string _successMessage;
 
@@ -21,8 +21,8 @@ namespace PersonalFinanceTracker.ViewModels
             get => _successMessage;
             set => SetProperty(ref _successMessage, value);
         }
-
-        public SuccessWindowViewModel(string message)
+            
+        public SuccessPopUpViewModel(string message)
         {
             SuccessMessage = message;
         }

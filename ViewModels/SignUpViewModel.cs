@@ -20,7 +20,7 @@ namespace PersonalFinanceTracker.ViewModels
     public class SignUpViewModel : INotifyPropertyChanged
     {
         private readonly IUserRepository _userRepository;
-        private readonly IDialogService _dialogService;
+        private readonly IPFTDialogService _dialogService;
 
         private string _username = "";
         private string _usernameError = "";
@@ -45,7 +45,7 @@ namespace PersonalFinanceTracker.ViewModels
         public event PropertyChangedEventHandler? PropertyChanged;
         public event Action? OnSignUpCompleted; // Event that notifies of completion
 
-        public SignUpViewModel(IUserRepository userRepository, IDialogService dialogService)
+        public SignUpViewModel(IUserRepository userRepository, IPFTDialogService dialogService)
         {
             _dialogService = dialogService;
             _userRepository = userRepository;

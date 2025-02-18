@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PersonalFinanceTracker.Backend.Interfaces
 {
-    public interface IDialogService
+    public interface IPFTDialogService
     {
         void ShowSuccessMessage(string message);
     }

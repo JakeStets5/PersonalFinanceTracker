@@ -31,7 +31,7 @@ namespace PersonalFinanceTracker.ViewModels
 
         private readonly INavigationService _navigationService; // To help with window navigation
 
-        private readonly IDialogService _dialogService; // For any pop up dialog
+        private readonly IPFTDialogService _dialogService; // For any pop up dialog
 
         public bool IsPasswordPlaceholderVisible => string.IsNullOrEmpty(TempPassword); // To make the placeholder text for password vanish
         public char PasswordMaskChar => IsPasswordVisible ? '\0' : '●';
@@ -99,7 +99,7 @@ namespace PersonalFinanceTracker.ViewModels
             }
         }
 
-        public SignInViewModel(IUserRepository userRepository, INavigationService navigationService, IDialogService dialogService)
+        public SignInViewModel(IUserRepository userRepository, INavigationService navigationService, IPFTDialogService dialogService)
         {
             _userRepository = userRepository;
             _navigationService = navigationService;

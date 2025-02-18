@@ -23,19 +23,20 @@ namespace PersonalFinanceTracker.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly UserRepository _userRepository;
-
+        private readonly IUserRepository _userRepository;
         private readonly INavigationService _navigationService;
-        private readonly IDialogService _dialogService;
+        private readonly IPFTDialogService _dialogService;
 
-        public MainWindow(UserRepository userRepository, INavigationService navigationService, IDialogService dialogService)
+        public MainWindow(MainWindowViewModel mainWindowViewModel, IUserRepository userRepository, INavigationService navigationService, IPFTDialogService dialogService)
         {
+
             try
             {
                 _userRepository = userRepository;
                 _navigationService = navigationService;
                 _dialogService = dialogService;
                 InitializeComponent();
+                DataContext = mainWindowViewModel;
             }
             catch (Exception ex)
             {
@@ -43,7 +44,6 @@ namespace PersonalFinanceTracker.Views
                 throw;  // Rethrow or handle accordingly
             }
         }
-
 
         private void NavRadioButton_Click(object sender, RoutedEventArgs e)
         {
@@ -78,7 +78,7 @@ namespace PersonalFinanceTracker.Views
         private void SignInButton_Click(object sender, RoutedEventArgs e)
         {
             var signInViewModel = new SignInViewModel(_userRepository, _navigationService, _dialogService);
-            SignInWindow signInWindow = new SignInWindow(_userRepository, signInViewModel);
+            SignInWindow signInWindow = new SignInWindow(signInViewModel);
             signInWindow.ShowDialog();
         }
 

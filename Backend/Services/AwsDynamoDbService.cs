@@ -11,10 +11,10 @@ namespace PersonalFinanceTracker.Backend.Services
     public class AwsDynamoDbService : IAwsDynamoDbService
     {
         private readonly IAmazonDynamoDB _dynamoDb;
-        private readonly ILogger<AwsDynamoDbService> _logger;
+        private readonly Lazy<ILogger<AwsDynamoDbService>> _logger;
         private readonly string _tableName = "Users"; // Replace with your table name
 
-        public AwsDynamoDbService(IAmazonDynamoDB dynamoDb, ILogger<AwsDynamoDbService> logger)
+        public AwsDynamoDbService(IAmazonDynamoDB dynamoDb, Lazy<ILogger<AwsDynamoDbService>> logger)
         {
             _dynamoDb = dynamoDb;
             _logger = logger;
@@ -24,7 +24,7 @@ namespace PersonalFinanceTracker.Backend.Services
         {
             try
             {
-                _logger.LogInformation("Attempting to add user to DynamoDB with ID: {Username}", user.Username);
+                _logger.Value.LogInformation("Attempting to add user to DynamoDB with ID: {Username}", user.Username);
 
                 var table = Table.LoadTable(_dynamoDb, _tableName);
                 var document = new Document
@@ -36,11 +36,11 @@ namespace PersonalFinanceTracker.Backend.Services
 
                 await table.PutItemAsync(document);
 
-                _logger.LogInformation("User with ID {Username} added successfully to DynamoDB", user.Username);
+                _logger.Value.LogInformation("User with ID {Username} added successfully to DynamoDB", user.Username);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while adding user to DynamoDB with ID {Username}", user.Username);
+                _logger.Value.LogError(ex, "Error occurred while adding user to DynamoDB with ID {Username}", user.Username);
             }
         }
 

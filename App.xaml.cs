@@ -3,83 +3,99 @@ using PersonalFinanceTracker.Backend.Repositories;
 using PersonalFinanceTracker.Backend.Services;
 using PersonalFinanceTracker.Views;
 using Serilog;
-using System.Configuration;
-using System.Data;
 using System.Windows;
 using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
 using PersonalFinanceTracker.Backend.Interfaces;
 using PersonalFinanceTracker.Backend.Factories;
 using PersonalFinanceTracker.ViewModels;
+using Microsoft.Extensions.Logging;
+using Prism.Ioc;
 
 namespace PersonalFinanceTracker
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
+    public partial class App : PrismApplication
     {
         public IServiceProvider? Services { get; private set; }
 
-
         protected override async void OnStartup(StartupEventArgs e)
         {
-            base.OnStartup(e);  // Call the base method to ensure WPF default startup behavior
+            base.OnStartup(e);
 
-            // Configure logging with Serilog
             Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console()  // Configure Serilog to log to the console
+                .WriteTo.Console()
                 .CreateLogger();
 
             try
             {
-                // Load DynamoDB credentials from Secrets Manager
                 await AwsSecretsLoader.LoadDynamoDBCredentials();
 
-                // Setup dependency injection (DI)
                 var serviceCollection = new ServiceCollection();
-                ConfigureServices(serviceCollection);  // This method should add necessary services to the DI container
+                ConfigureServices(serviceCollection);
 
-                // Build the service provider
                 Services = serviceCollection.BuildServiceProvider();
 
-                // Resolve the MainWindow from DI container
-                var mainWindow = Services.GetRequiredService<MainWindow>();
-                mainWindow.Show();  // Show the MainWindow
+                // Register ILoggerFactory and IServiceProvider for dependency resolution
+                Container.GetContainer().RegisterInstance(Services.GetRequiredService<ILoggerFactory>());
+                Container.GetContainer().RegisterInstance<IServiceProvider>(Services);
 
-                // Optional: If you need to log something at startup, you can log here
+                var mainWindow = Container.Resolve<MainWindow>();
+                mainWindow.Show();
+
                 Log.Information("Application started successfully.");
             }
             catch (Exception ex)
             {
-                // Handle any initialization errors
                 Log.Fatal(ex, "An error occurred during application startup.");
-                throw;  // Rethrow exception to let the application crash if needed
+                throw;
             }
+        }
+
+        protected override Window CreateShell()
+        {
+            return null; // Prevents a second main window from opening
+        }
+
+        protected override void RegisterTypes(IContainerRegistry containerRegistry)
+        {
+            // View and ViewModel registrations
+            containerRegistry.RegisterForNavigation<UploadTransactionView>();
+            containerRegistry.Register<SignUpViewModel>();
+            containerRegistry.Register<MainWindow>();
+
+            // Main window dependencies
+            containerRegistry.Register<MainWindowViewModel>();
+            containerRegistry.Register<IUserRepository, UserRepository>();
+            containerRegistry.Register<INavigationService, NavigationService>();
+            containerRegistry.Register<IPFTDialogService, PFTDialogService>();
+
+            // Service and AWS registrations
+            containerRegistry.Register<IAwsDynamoDbService, AwsDynamoDbService>();
+            containerRegistry.RegisterInstance<IAmazonDynamoDB>(new AmazonDynamoDBClient());
+            containerRegistry.RegisterSingleton(typeof(ILogger<>), typeof(Logger<>));
+
+            // WindowFactory with deferred SignUpViewModel resolution
+            containerRegistry.RegisterInstance<IWindowFactory>(
+                new WindowFactory(() => Container.Resolve<SignUpViewModel>(), Services)
+            );
         }
 
         private void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IUserRepository, UserRepository>();  // Registering the user repo interface and its implementation
+            // View and ViewModel services
+            services.AddTransient<MainWindow>();
+            services.AddTransient<MainWindowViewModel>();
+            services.AddSingleton<IPFTDialogService, PFTDialogService>();
+
+            // Stateless backend services
+            services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IAwsDynamoDbService, AwsDynamoDbService>();
+
+            // Shared single-instance services
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<IAmazonDynamoDB, AmazonDynamoDBClient>();
-            services.AddTransient<IAwsDynamoDbService, AwsDynamoDbService>();
-            services.AddTransient<UserRepository>();  // Register UserRepository
-            services.AddTransient<NavigationService>();  // Register UserRepository
-            services.AddSingleton<DynamoDBContext>();
-            services.AddSingleton<IDialogService, DialogService>();
-            services.AddTransient<MainWindow>();  // Register MainWindow
-            services.AddLogging();  // Add logging
 
-            // DI for generating a new instance of the sign up window
-            services.AddTransient<SignUpViewModel>();
-            services.AddSingleton<IWindowFactory>(provider =>
-                new WindowFactory(() => provider.GetRequiredService<SignUpViewModel>(), provider)
-            );
-
-            services.AddSingleton<NavigationService>();
-
-
+            // Logging service
+            services.AddLogging();
         }
     }
 }

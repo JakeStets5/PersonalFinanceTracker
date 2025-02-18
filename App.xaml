@@ -1,8 +1,9 @@
-﻿<Application x:Class="PersonalFinanceTracker.App"
+﻿<prism:PrismApplication  x:Class="PersonalFinanceTracker.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:PersonalFinanceTracker"
              xmlns:uiscripts="clr-namespace:PersonalFinanceTracker.UIScripts" 
+             xmlns:prism="http://prismlibrary.com/"
              xmlns:sys="clr-namespace:System;assembly=netstandard">
     <Application.Resources >
         <uiscripts:PlaceholderTextVisibilityConverter x:Key="PlaceholderTextVisibilityConverter" />
@@ -11,4 +12,4 @@
         <sys:String x:Key="MainPasswordIdentifier">MainPassword</sys:String>
         <sys:String x:Key="ConfirmPasswordIdentifier">ConfirmPassword</sys:String>
     </Application.Resources>
-</Application>
+</prism:PrismApplication>

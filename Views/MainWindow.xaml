@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:prism="http://prismlibrary.com/"
         mc:Ignorable="d"
         Title="MainWindow" Height="900" Width="1600">
     <Window.Resources>
@@ -78,6 +79,7 @@
 
                 <StackPanel Grid.Column="0" Name="NavStackPanel" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,5,0,0">
 
+                    <!-- Home Nav Button -->
                     <RadioButton Content="Home" Margin="10" GroupName="NavGroup" Click="NavRadioButton_Click">
                         <RadioButton.Template>
                             <ControlTemplate TargetType="RadioButton">
@@ -121,6 +123,7 @@
                         </RadioButton.Template>
                     </RadioButton>
 
+                    <!-- Spending Forecast Nav Button -->
                     <RadioButton Content="Spending Forecast" Margin="10" GroupName="NavGroup" Click="NavRadioButton_Click">
                         <RadioButton.Template>
                             <ControlTemplate TargetType="RadioButton">
@@ -164,6 +167,7 @@
                         </RadioButton.Template>
                     </RadioButton>
 
+                    <!-- Budget Nav Button -->
                     <RadioButton Content="Budget" Margin="10" GroupName="NavGroup" Click="NavRadioButton_Click">
                         <RadioButton.Template>
                             <ControlTemplate TargetType="RadioButton">
@@ -207,6 +211,7 @@
                         </RadioButton.Template>
                     </RadioButton>
 
+                    <!-- Upload Transactions Nav Button -->
                     <RadioButton Content="Upload Transactions" Margin="10" GroupName="NavGroup" Click="NavRadioButton_Click">
                         <RadioButton.Template>
                             <ControlTemplate TargetType="RadioButton">
@@ -250,6 +255,7 @@
                         </RadioButton.Template>
                     </RadioButton>
 
+                    <!-- Financial Report Nav Button -->
                     <RadioButton Content="Financial Report" Margin="10" GroupName="NavGroup" Click="NavRadioButton_Click">
                         <RadioButton.Template>
                             <ControlTemplate TargetType="RadioButton">
@@ -294,6 +300,7 @@
                     </RadioButton>
                 </StackPanel>
 
+                <!-- Sign In Button -->
                 <RadioButton x:Name="SignInButton" Content="Sign In/Sign Up" Grid.Column="1" Margin="10" HorizontalContentAlignment="Center"
                              VerticalContentAlignment="Center" HorizontalAlignment="Center" 
                              VerticalAlignment="Center" Click="SignInButton_Click">
@@ -338,6 +345,7 @@
                     </RadioButton.Template>
                 </RadioButton>
             </Grid>
+            
             <!-- Underline -->
             <Rectangle x:Name="Underline" Fill="#C6B9CD" Height="2" Width="100" Canvas.Top="48" />
         </Canvas>
@@ -346,8 +354,8 @@
         <Rectangle DockPanel.Dock="Top" Height="3" Fill="#C6B9CD" />
 
         <!-- Main Content -->
-        <Grid Background="#597a7f">
-            <!-- Add your main content here -->
-        </Grid>
+        <!-- This is the main content region where views will load -->
+        <ContentControl prism:RegionManager.RegionName="MainRegion"
+                        Grid.Row="1" Background="#597a7f"/>
     </DockPanel>
 </Window>

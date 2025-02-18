@@ -10,11 +10,11 @@ using System.Windows.Threading;
 
 namespace PersonalFinanceTracker.Backend.Services
 {
-    public class DialogService : IDialogService
+    public class PFTDialogService : IPFTDialogService
     {
         public void ShowSuccessMessage(string message)
         {
-            var successWindow = new SuccessWindow(new SuccessWindowViewModel(message));
+            var successWindow = new SuccessWindow(new SuccessPopUpViewModel(message));
             successWindow.Show();  // Show the success window
 
             // Create a timer to close the success window after 2 seconds

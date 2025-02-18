@@ -20,7 +20,7 @@ namespace PersonalFinanceTracker.Views
     /// </summary>
     public partial class SuccessWindow : Window
     {
-        public SuccessWindow(SuccessWindowViewModel viewModel)
+        public SuccessWindow(SuccessPopUpViewModel viewModel)
         {
             InitializeComponent();
 

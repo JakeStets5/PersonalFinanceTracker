@@ -24,12 +24,9 @@ namespace PersonalFinanceTracker.Views
     public partial class SignInWindow : Window
     {
 
-        private readonly UserRepository _userRepository;
-
-        public SignInWindow(UserRepository userRepository, SignInViewModel signInViewModel)
+        public SignInWindow(SignInViewModel signInViewModel)
         {
             InitializeComponent();
-            _userRepository = userRepository;
 
             // Set window position relative to the main window
             CenterToMainWindow();

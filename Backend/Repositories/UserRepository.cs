@@ -10,10 +10,10 @@ namespace PersonalFinanceTracker.Backend.Repositories
     public class UserRepository: IUserRepository
     {
         private readonly IAwsDynamoDbService _dynamoDbService;
-        private readonly ILogger<UserRepository> _logger;
+        private readonly Lazy<ILogger<UserRepository>> _logger;
         private readonly DynamoDBContext _context;
 
-        public UserRepository(IAwsDynamoDbService dynamoDbService, ILogger<UserRepository> logger, DynamoDBContext context)
+        public UserRepository(IAwsDynamoDbService dynamoDbService, Lazy<ILogger<UserRepository>> logger, DynamoDBContext context)
         {
             _dynamoDbService = dynamoDbService;
             _logger = logger;
@@ -25,16 +25,16 @@ namespace PersonalFinanceTracker.Backend.Repositories
         {
             try
             {
-                _logger.LogInformation("Attempting to add user with ID: {UserId} and Email: {Email}", user.Username, user.Email);
+                _logger.Value.LogInformation("Attempting to add user with ID: {UserId} and Email: {Email}", user.Username, user.Email);
 
                 // Call the service to add the user to DynamoDB
                 await _dynamoDbService.AddUserAsync(user);
 
-                _logger.LogInformation("User {UserId} added successfully to DynamoDB", user.Username);
+                _logger.Value.LogInformation("User {UserId} added successfully to DynamoDB", user.Username);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while adding user {UserId}", user.Username);
+                _logger.Value.LogError(ex, "Error occurred while adding user {UserId}", user.Username);
             }
         }
 
