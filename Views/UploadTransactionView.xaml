@@ -4,40 +4,178 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PersonalFinanceTracker.Views"
+             xmlns:prism="http://prismlibrary.com/"
              mc:Ignorable="d" 
+             Background="#597a7f"
              d:DesignHeight="450" d:DesignWidth="800">
+    
+    <UserControl.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="FontFamily" Value="Montserrat" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="BorderBrush" Value="#597a7f" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Background" Value="#C6B9CD" />
+            <Setter Property="Padding" Value="5" />
+        </Style>
+
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontFamily" Value="Montserrat" />
+            <Setter Property="FontSize" Value="14" />
+        </Style>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontFamily" Value="Montserrat" />
+            <Setter Property="FontSize" Value="14" />
+        </Style>
+
+        <Style TargetType="GroupBox">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GroupBox">
+                        <Border Background="#2F3E46" BorderBrush="#597a7f" BorderThickness="2" CornerRadius="5">
+                            <Grid>
+                                <!-- Header Background -->
+                                <Border Background="#597a7f" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10, -10, 0, 0" CornerRadius="3">
+                                    <TextBlock Text="{TemplateBinding Header}"
+                                       Foreground="White"
+                                       FontFamily="Montserrat"
+                                       FontSize="18"
+                                       FontWeight="Bold"
+                                       Padding="5,2"
+                                       VerticalAlignment="Center"/>
+                                </Border>
+                                <!-- Content -->
+                                <ContentPresenter Margin="10,20,10,10"/>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PlaceholderTextBlockStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Margin" Value="10,0,0,0"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextDecorations" Value="Underline"/>
+        </Style>
+
+        <!-- Button Style -->
+        <Style TargetType="Button">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontFamily" Value="Montserrat" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Background" Value="Transparent" />
+            <!-- Button Background Color -->
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Padding" Value="10" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                        CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>
+
     <Grid>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="2*"/>
             <!-- Income & Expense section -->
             <ColumnDefinition Width="1*"/>
             <!-- Breakdown section -->
         </Grid.ColumnDefinitions>
-
         <StackPanel Grid.Column="0" Orientation="Vertical" Margin="10">
+            
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Orientation="Vertical" Margin="5">
             <!-- Income Section -->
             <GroupBox Header="Income" Margin="5">
                 <StackPanel>
-                    <TextBlock Text="Income Details" FontSize="14"/>
-                    <!-- Income fields, bindings, and buttons here -->
-                    <TextBox Width="200" Text="Enter Income..."/>
-                    <Button Content="Add Income" Width="100" Margin="5"/>
+                    <!-- Income Source -->
+                    <Label Content="Source" />
+                    <Grid>
+                        <TextBox x:Name="IncomeSourceField"
+                     Text="{Binding IncomeSource, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="Enter income source"
+                                   Style="{StaticResource PlaceholderTextBlockStyle}"
+                                   Visibility="{Binding Text, ElementName=IncomeSourceField, Converter={StaticResource PlaceholderTextVisibilityConverter}}"/>
+                    </Grid>
+
+                    <!-- Frequency -->
+                    <Label Content="Frequency" />
+                    <Grid>
+                        <TextBox x:Name="IncomeFrequencyField"
+                     Text="{Binding IncomeFrequency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="Enter income frequency"
+                                   Style="{StaticResource PlaceholderTextBlockStyle}"
+                                   Visibility="{Binding Text, ElementName=IncomeFrequencyField, Converter={StaticResource PlaceholderTextVisibilityConverter}}"/>
+                    </Grid>
+
+                    <!-- Date -->
+                    <Label Content="Date" />
+                    <Grid>
+                        <TextBox x:Name="IncomeDateField"
+                     Text="{Binding IncomeDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="Enter date received"
+                                   Style="{StaticResource PlaceholderTextBlockStyle}"
+                                   Visibility="{Binding Text, ElementName=IncomeDateField, Converter={StaticResource PlaceholderTextVisibilityConverter}}"/>
+                    </Grid>
+
+                    <!-- Payment Method -->
+                    <Label Content="Payment Method" />
+                    <Grid>
+                        <TextBox x:Name="IncomePaymentMethodField"
+                     Text="{Binding IncomePaymentMethod, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="Enter method of received payment"
+                                   Style="{StaticResource PlaceholderTextBlockStyle}"
+                                   Visibility="{Binding Text, ElementName=IncomePaymentMethodField, Converter={StaticResource PlaceholderTextVisibilityConverter}}"/>
+                    </Grid>
+
+                    <Button Content="Add Income Statement" Margin="10" Background="#597a7f"/>
                 </StackPanel>
             </GroupBox>
 
             <!-- Expense Section -->
-            <GroupBox Header="Expenses" Margin="5">
+            <GroupBox Header="Expense" Margin="5">
                 <StackPanel>
-                    <TextBlock Text="Expense Details" FontSize="14"/>
-                    <!-- Expense fields, bindings, and buttons here -->
-                    <TextBox Width="200" Text="Enter Expense..."/>
-                    <Button Content="Add Expense" Width="100" Margin="5"/>
+                    <!-- Income fields, bindings, and buttons here -->
+                    <Label Content="Expense Category"/>
+                    <TextBox Width="200" Text="Enter expense category..."/>
+
+                    <Label Content="Expense Sub-Category"/>
+                    <TextBox Width="200" Text="Enter expense sub-category..."/>
+
+                    <Label Content="Date"/>
+                    <TextBox Width="200" Text="Enter date..."/>
+
+                    <Label Content="Payment Method"/>
+                    <TextBox Width="200" Text="Enter payment method..."/>
+
+                    <Label Content="Merchant Name"/>
+                    <TextBox Width="200" Text="Enter merchant name..."/>
+
+                    <Button Content="Add Expense Statement" Margin="10" Background="#597a7f"/>
                 </StackPanel>
             </GroupBox>
         </StackPanel>
 
         <!-- Breakdown Section -->
-        <GroupBox Header="Breakdown" Grid.Column="1" Margin="10">
+        <GroupBox Header="Breakdown" Grid.Column="2" Margin="10">
             <StackPanel>
                 <TextBlock Text="Spending Breakdown" FontSize="14"/>
                 <!-- Example: Pie Chart or Bar Chart placeholder -->

@@ -38,21 +38,18 @@ namespace PersonalFinanceTracker
                 Container.GetContainer().RegisterInstance(Services.GetRequiredService<ILoggerFactory>());
                 Container.GetContainer().RegisterInstance<IServiceProvider>(Services);
 
-                var mainWindow = Container.Resolve<MainWindow>();
-                mainWindow.Show();
-
                 Log.Information("Application started successfully.");
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex, "An error occurred during application startup.");
                 throw;
-            }
+            } 
         }
 
         protected override Window CreateShell()
         {
-            return null; // Prevents a second main window from opening
+            return Container.Resolve<MainWindow>(); // Showing the main window with prism
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)

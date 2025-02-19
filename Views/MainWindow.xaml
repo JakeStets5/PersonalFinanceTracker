@@ -212,7 +212,7 @@
                     </RadioButton>
 
                     <!-- Upload Transactions Nav Button -->
-                    <RadioButton Content="Upload Transactions" Margin="10" GroupName="NavGroup" Click="NavRadioButton_Click">
+                    <RadioButton Content="Upload Transactions" Margin="10" GroupName="NavGroup" Click="NavRadioButton_Click" Command="{Binding UploadTransactionCommand}">
                         <RadioButton.Template>
                             <ControlTemplate TargetType="RadioButton">
                                 <Border x:Name="Border" Padding="3" CornerRadius="4" Background="{TemplateBinding Background}">
@@ -356,6 +356,6 @@
         <!-- Main Content -->
         <!-- This is the main content region where views will load -->
         <ContentControl prism:RegionManager.RegionName="MainRegion"
-                        Grid.Row="1" Background="#597a7f"/>
+                        Grid.Row="1"/>
     </DockPanel>
 </Window>

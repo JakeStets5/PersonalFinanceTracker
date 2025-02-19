@@ -9,6 +9,8 @@ namespace PersonalFinanceTracker.Backend.Interfaces
     public interface INavigationService
     {
         void OpenSignUpWindow();
+
+        void Navigate(string regionName, string viewName);
         //void CloseSignIn();
     }
 }
