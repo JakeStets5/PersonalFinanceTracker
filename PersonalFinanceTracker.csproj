@@ -15,6 +15,7 @@
     <None Remove="Assets\Images\NavMenuIcons\HomeIconWhite.png" />
     <None Remove="Assets\Images\NavMenuIcons\SpendingForecastIconWhite.png" />
     <None Remove="Assets\Images\NavMenuIcons\TransactionIconWhite.png" />
+    <None Remove="Fonts\Roboto-Regular.ttf" />
   </ItemGroup>
 
   <ItemGroup>
@@ -48,10 +49,11 @@
 	  <Resource Include="Assets\Images\SignUpWindowIcons\closed_eye_icon.png">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Resource>
+	  <Resource Include="Fonts\Roboto-Regular.ttf" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.404.4" />
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.405.24" />
     <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.400.63" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />

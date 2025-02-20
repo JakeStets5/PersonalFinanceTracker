@@ -5,11 +5,33 @@
              xmlns:uiscripts="clr-namespace:PersonalFinanceTracker.UIScripts" 
              xmlns:prism="http://prismlibrary.com/"
              xmlns:sys="clr-namespace:System;assembly=netstandard">
-    <Application.Resources >
-        <uiscripts:PlaceholderTextVisibilityConverter x:Key="PlaceholderTextVisibilityConverter" />
-        <uiscripts:ErrorMessageVisibilityConverter x:Key="ErrorMessageVisibilityConverter" />
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Font styles -->
+                <ResourceDictionary>
+                    <Style TargetType="Window">
+                        <Setter Property="FontFamily" Value="pack://application:,,,/Fonts/#Roboto" />
+                    </Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="FontFamily" Value="pack://application:,,,/Fonts/#Roboto" />
+                    </Style>
+                    <Style TargetType="TextBox">
+                        <Setter Property="FontFamily" Value="pack://application:,,,/Fonts/#Roboto" />
+                    </Style>
+                    <Style TargetType="ComboBox">
+                        <Setter Property="FontFamily" Value="pack://application:,,,/Fonts/#Roboto" />
+                    </Style>
+                </ResourceDictionary>
 
-        <sys:String x:Key="MainPasswordIdentifier">MainPassword</sys:String>
-        <sys:String x:Key="ConfirmPasswordIdentifier">ConfirmPassword</sys:String>
+                <!-- Other resources -->
+                <ResourceDictionary>
+                    <uiscripts:PlaceholderTextVisibilityConverter x:Key="PlaceholderTextVisibilityConverter" />
+                    <uiscripts:ErrorMessageVisibilityConverter x:Key="ErrorMessageVisibilityConverter" />
+                    <sys:String x:Key="MainPasswordIdentifier">MainPassword</sys:String>
+                    <sys:String x:Key="ConfirmPasswordIdentifier">ConfirmPassword</sys:String>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </prism:PrismApplication>

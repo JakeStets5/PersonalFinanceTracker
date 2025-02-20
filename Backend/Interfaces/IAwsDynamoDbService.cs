@@ -11,5 +11,6 @@ namespace PersonalFinanceTracker.Backend.Interfaces
     {
         Task AddUserAsync(User user);
         Task<User?> GetUserByIdAsync(string userId);
+        Task SaveStatementAsync(Statement statement);
     }
 }

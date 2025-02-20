@@ -11,10 +11,10 @@ namespace PersonalFinanceTracker.Backend.Models
     public class User
     {
         [DynamoDBHashKey] // Partition key
-        public string Username { get; set; }
+        public string UserId { get; set; }
 
         [DynamoDBProperty]
-        public string UserName { get; set; }
+        public string Username { get; set; }
 
         [DynamoDBProperty]
         public string Email { get; set; }

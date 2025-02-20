@@ -7,17 +7,171 @@
              xmlns:prism="http://prismlibrary.com/"
              mc:Ignorable="d" 
              Background="#597a7f"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800" MinHeight="1000">
     
     <UserControl.Resources>
+
         <Style TargetType="TextBox">
             <Setter Property="Foreground" Value="Black" />
-            <Setter Property="FontFamily" Value="Montserrat" />
             <Setter Property="FontSize" Value="14" />
             <Setter Property="BorderBrush" Value="#597a7f" />
             <Setter Property="BorderThickness" Value="2" />
             <Setter Property="Background" Value="#C6B9CD" />
             <Setter Property="Padding" Value="5" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}" 
+                        BorderBrush="{TemplateBinding BorderBrush}" 
+                        BorderThickness="{TemplateBinding BorderThickness}" 
+                        CornerRadius="5">
+                            <!-- Adjust this value for rounded corners -->
+                            <ScrollViewer Margin="0" x:Name="PART_ContentHost"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <!-- Hover Trigger -->
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="DatePicker">
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="BorderBrush" Value="#597a7f" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Background" Value="#C6B9CD" />
+            <Setter Property="Padding" Value="5" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DatePicker">
+                        <Border Background="{TemplateBinding Background}" 
+                        BorderBrush="{TemplateBinding BorderBrush}" 
+                        BorderThickness="{TemplateBinding BorderThickness}" 
+                        CornerRadius="5">
+                            <Grid>
+                                <DatePickerTextBox x:Name="PART_TextBox"
+                                                   Foreground="{TemplateBinding Foreground}"
+                                                   Background="{TemplateBinding Background}"
+                                                   Padding="{TemplateBinding Padding}"
+                                                   BorderThickness="0"
+                                                   BorderBrush="Green"
+                                                   FocusVisualStyle="{x:Null}"
+                                                   IsReadOnly="True"/>
+                                <Button x:Name="PART_Button"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                HorizontalAlignment="Right"
+                                Cursor="Hand">
+                                    <ContentControl Content="📅" FontSize="20"/>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <!-- Hover Trigger -->
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderBrush" Value="#597a7f"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Background" Value="#C6B9CD"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}" 
+                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="3">
+                                <DockPanel>
+                                    <TextBlock Text="{TemplateBinding Text}" 
+                                               VerticalAlignment="Center" 
+                                               Padding="{TemplateBinding Padding}" 
+                                               Foreground="{TemplateBinding Foreground}" />
+                                    <ToggleButton
+                                                  Focusable="False" 
+                                                  HorizontalAlignment="Right"
+                                                  Width="30"
+                                                  IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                                                  Background="{TemplateBinding Background}">
+                                        <ContentControl Content="▼" Foreground="Black" />
+                                    </ToggleButton>
+                                </DockPanel>
+                            </Border>
+                            <Popup IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   Placement="Bottom"
+                                   Width="{TemplateBinding ActualWidth}"
+                                   AllowsTransparency="True">
+                                <Border Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="1">
+                                    <ScrollViewer>
+                                        <StackPanel IsItemsHost="True"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <!-- Hover Trigger -->
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="5"/>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border Background="{TemplateBinding Background}"
+                        Padding="{TemplateBinding Padding}">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#1c2b2e"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#597a7f"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="Gray"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style TargetType="Label">
@@ -66,21 +220,22 @@
         </Style>
 
         <!-- Button Style -->
-        <Style TargetType="Button">
+        <Style x:Key="IEButtonStyle" TargetType="Button">
             <Setter Property="Foreground" Value="White" />
             <Setter Property="FontFamily" Value="Montserrat" />
             <Setter Property="FontSize" Value="14" />
             <Setter Property="Background" Value="Transparent" />
-            <!-- Button Background Color -->
+            <Setter Property="Padding" Value="5,5"/>
+            <!-- Padding set here -->
             <Setter Property="BorderBrush" Value="Transparent" />
-            <Setter Property="Padding" Value="10" />
             <Setter Property="HorizontalAlignment" Value="Center" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}"
-                        CornerRadius="4">
+                                Padding="{TemplateBinding Padding}"
+                                CornerRadius="4">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
@@ -93,47 +248,101 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="2*"/>
-            <!-- Income & Expense section -->
             <ColumnDefinition Width="1*"/>
+            <!-- Income & Expense section -->
+            <ColumnDefinition Width="2*"/>
             <!-- Breakdown section -->
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0" Orientation="Vertical" Margin="10">
-            
-        </StackPanel>
+        <GroupBox Header="Templates" Grid.Column="0" Margin="10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+
+                <!-- Income Templates Section -->
+                <StackPanel Grid.Row="0" Margin="5">
+                    <TextBlock Text="Income Templates" FontSize="14" Foreground="White" FontWeight="Bold"/>
+                    <ItemsControl ItemsSource="{Binding IncomeTemplates}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding TemplateName}" Command="{Binding DataContext.LoadTemplateCommand, RelativeSource={RelativeSource AncestorType=GroupBox}}" Margin="5" Padding="10" Background="#597a7f" Foreground="White" FontFamily="Montserrat" FontSize="14" Cursor="Hand" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <!-- Expense Templates Section -->
+                <StackPanel Grid.Row="1" Margin="5">
+                    <TextBlock Text="Expense Templates" FontSize="14" Foreground="White" FontWeight="Bold"/>
+                    <ItemsControl ItemsSource="{Binding ExpenseTemplates}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding TemplateName}" Command="{Binding DataContext.LoadTemplateCommand, RelativeSource={RelativeSource AncestorType=GroupBox}}" Margin="5" Padding="10" Background="#597a7f" Foreground="White" FontFamily="Montserrat" FontSize="14" Cursor="Hand" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+
 
         <StackPanel Grid.Column="1" Orientation="Vertical" Margin="5">
             <!-- Income Section -->
             <GroupBox Header="Income" Margin="5">
                 <StackPanel>
-                    <!-- Income Source -->
+                    <Label Content="Amount" />
+                    <Grid>
+                        <TextBox x:Name="IncomeAmountField"
+                                 Text="{Binding IncomeAmount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PreviewTextInput="IncomeAmountField_PreviewTextInput"
+                                 LostFocus="IncomeAmountField_LostFocus"/>
+                        <TextBlock Text="Enter income Amount"
+                                   Style="{StaticResource PlaceholderTextBlockStyle}"
+                                   Visibility="{Binding Text, ElementName=IncomeAmountField, Converter={StaticResource PlaceholderTextVisibilityConverter}}"/>
+                    </Grid>
+                        <!-- Income Source -->
                     <Label Content="Source" />
                     <Grid>
-                        <TextBox x:Name="IncomeSourceField"
-                     Text="{Binding IncomeSource, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBlock Text="Enter income source"
+                        <ComboBox x:Name="IncomeSourceComboBox"
+                                  ItemsSource="{Binding IncomeSourceOptions}"
+                                  SelectedItem="{Binding IncomeSource, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  IsEditable="True"/>
+                        <TextBlock Text="Enter or select income source"
                                    Style="{StaticResource PlaceholderTextBlockStyle}"
-                                   Visibility="{Binding Text, ElementName=IncomeSourceField, Converter={StaticResource PlaceholderTextVisibilityConverter}}"/>
+                                   Visibility="{Binding Text, ElementName=IncomeSourceComboBox, Converter={StaticResource PlaceholderTextVisibilityConverter}}"/>
                     </Grid>
 
                     <!-- Frequency -->
                     <Label Content="Frequency" />
                     <Grid>
-                        <TextBox x:Name="IncomeFrequencyField"
-                     Text="{Binding IncomeFrequency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBlock Text="Enter income frequency"
+                        <ComboBox x:Name="IncomeFrequencyComboBox"
+                                  ItemsSource="{Binding IncomeFrequencyOptions}"
+                                  SelectedItem="{Binding IncomeFrequency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  IsEditable="True"/>
+                        <TextBlock Text="Enter or select income frequency"
                                    Style="{StaticResource PlaceholderTextBlockStyle}"
-                                   Visibility="{Binding Text, ElementName=IncomeFrequencyField, Converter={StaticResource PlaceholderTextVisibilityConverter}}"/>
+                                   Visibility="{Binding Text, ElementName=IncomeFrequencyComboBox, Converter={StaticResource PlaceholderTextVisibilityConverter}}"/>
                     </Grid>
 
                     <!-- Date -->
                     <Label Content="Date" />
                     <Grid>
-                        <TextBox x:Name="IncomeDateField"
-                     Text="{Binding IncomeDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBlock Text="Enter date received"
-                                   Style="{StaticResource PlaceholderTextBlockStyle}"
-                                   Visibility="{Binding Text, ElementName=IncomeDateField, Converter={StaticResource PlaceholderTextVisibilityConverter}}"/>
+                        <DatePicker x:Name="IncomeDatePicker"
+                                    SelectedDate="{Binding IncomeDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    Background="#C6B9CD"
+                                    Foreground="Black"
+                                    BorderBrush="#597a7f"
+                                    BorderThickness="2"
+                                    FontSize="14"
+                                    Padding="5" 
+                                    VerticalContentAlignment="Center">
+                            <DatePicker.Resources>
+                                <Style TargetType="DatePickerTextBox">
+                                    <Setter Property="IsReadOnly" Value="True"/>
+                                </Style>
+                            </DatePicker.Resources>
+                        </DatePicker>
                     </Grid>
 
                     <!-- Payment Method -->
@@ -145,31 +354,80 @@
                                    Style="{StaticResource PlaceholderTextBlockStyle}"
                                    Visibility="{Binding Text, ElementName=IncomePaymentMethodField, Converter={StaticResource PlaceholderTextVisibilityConverter}}"/>
                     </Grid>
-
-                    <Button Content="Add Income Statement" Margin="10" Background="#597a7f"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Command="{Binding AddIncomeStatementCommand}" Style="{StaticResource IEButtonStyle}" Content="Add Income Statement" Margin="10" Background="#597a7f"/>
+                        <Button Grid.Column="1" Command="{Binding SaveIncomeTemplateCommand}" Style="{StaticResource IEButtonStyle}" Content="Save Income Template" Margin="10" Background="#597a7f"/>
+                        
+                    </Grid>
+                    
                 </StackPanel>
             </GroupBox>
 
             <!-- Expense Section -->
             <GroupBox Header="Expense" Margin="5">
                 <StackPanel>
-                    <!-- Income fields, bindings, and buttons here -->
-                    <Label Content="Expense Category"/>
-                    <TextBox Width="200" Text="Enter expense category..."/>
+                    <!-- Expense fields, bindings, and buttons here -->
+                    <Label Content="Amount" />
+                    <Grid>
+                        <TextBox x:Name="ExpenseAmountField"
+                                 Text="{Binding ExpenseAmount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="Enter expense Amount"
+                                   Style="{StaticResource PlaceholderTextBlockStyle}"
+                                   Visibility="{Binding Text, ElementName=ExpenseAmountField, Converter={StaticResource PlaceholderTextVisibilityConverter}}"/>
+                    </Grid>
 
-                    <Label Content="Expense Sub-Category"/>
-                    <TextBox Width="200" Text="Enter expense sub-category..."/>
+                    <Label Content="Source" />
+                    <Grid>
+                        <TextBox x:Name="ExpenseSourceField"
+                                 Text="{Binding ExpenseSource, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="Enter expense source"
+                                   Style="{StaticResource PlaceholderTextBlockStyle}"
+                                   Visibility="{Binding Text, ElementName=ExpenseeSourceField, Converter={StaticResource PlaceholderTextVisibilityConverter}}"/>
+                    </Grid>
 
-                    <Label Content="Date"/>
-                    <TextBox Width="200" Text="Enter date..."/>
+                    <!-- Frequency -->
+                    <Label Content="Frequency" />
+                    <Grid>
+                        <TextBox x:Name="ExpenseFrequencyField"
+                                 Text="{Binding ExpenseFrequency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="Enter expense frequency"
+                                   Style="{StaticResource PlaceholderTextBlockStyle}"
+                                   Visibility="{Binding Text, ElementName=ExpenseFrequencyField, Converter={StaticResource PlaceholderTextVisibilityConverter}}"/>
+                    </Grid>
 
-                    <Label Content="Payment Method"/>
-                    <TextBox Width="200" Text="Enter payment method..."/>
+                    <!-- Date -->
+                    <Label Content="Date" />
+                    <Grid>
+                        <TextBox x:Name="ExpenseDateField"
+                                 Text="{Binding ExpenseDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="Enter expense date"
+                           Style="{StaticResource PlaceholderTextBlockStyle}"
+                           Visibility="{Binding Text, ElementName=ExpenseDateField, Converter={StaticResource PlaceholderTextVisibilityConverter}}"/>
+                    </Grid>
 
-                    <Label Content="Merchant Name"/>
-                    <TextBox Width="200" Text="Enter merchant name..."/>
+                    <!-- Payment Method -->
+                    <Label Content="Payment Method" />
+                    <Grid>
+                        <TextBox x:Name="ExpensePaymentMethodField"
+                            Text="{Binding ExpensePaymentMethod, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="Enter method of payment"
+                                   Style="{StaticResource PlaceholderTextBlockStyle}"
+                                   Visibility="{Binding Text, ElementName=ExpensePaymentMethodField, Converter={StaticResource PlaceholderTextVisibilityConverter}}"/>           
+                    </Grid>
 
-                    <Button Content="Add Expense Statement" Margin="10" Background="#597a7f"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Command="{Binding AddExpenseStatementCommand}" Style="{StaticResource IEButtonStyle}" Content="Add Expense Statement" Margin="10" Background="#597a7f"/>
+                        <Button Grid.Column="1" Command="{Binding SaveExpenseTemplateCommand}" Style="{StaticResource IEButtonStyle}" Content="Save Expense Template" Margin="10" Background="#597a7f"/>
+
+                    </Grid>
                 </StackPanel>
             </GroupBox>
         </StackPanel>

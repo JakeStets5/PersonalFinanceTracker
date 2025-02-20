@@ -251,8 +251,10 @@ namespace PersonalFinanceTracker.ViewModels
             {
                 // Hash the password using BCrypt for security
                 string hashedPassword = BCrypt.Net.BCrypt.HashPassword(Password);
+
+                string userId = Guid.NewGuid().ToString();  // Generate a unique user ID
                 // Create a new User object with provided data
-                var user = new User { Username = Username, Email = Email, Password = hashedPassword };
+                var user = new User { UserId = userId, Username = Username, Email = Email, Password = hashedPassword };
 
                 // Asynchronously save the user to the repository
                 try

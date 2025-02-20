@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PersonalFinanceTracker.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +21,39 @@ namespace PersonalFinanceTracker.Views
     /// </summary>
     public partial class UploadTransactionView : UserControl
     {
-        public UploadTransactionView()
+        public UploadTransactionView(UploadTransactionViewModel uploadTransactionViewModel)
         {
             InitializeComponent();
+            DataContext = uploadTransactionViewModel;
         }
+
+        #region // Income Amount Field
+        private void IncomeAmountField_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (decimal.TryParse(IncomeAmountField.Text, out decimal amount))
+            {
+                IncomeAmountField.Text = amount.ToString("N2"); // Format as currency with two decimal places
+            }
+            else
+            {
+                IncomeAmountField.Text = "0.00"; // Fallback for invalid input
+            }
+        }
+
+        private void IncomeAmountField_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            // Allow only digits and a single dot
+            e.Handled = !IsTextAllowed(e.Text, (sender as TextBox).Text);
+        }
+
+        private bool IsTextAllowed(string newText, string currentText)
+        {
+            // Check if the newText is a digit or a dot
+            if (decimal.TryParse(currentText + newText, out _))
+                return true;
+
+            return false;
+        }
+        #endregion
     }
 }

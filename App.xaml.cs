@@ -69,6 +69,7 @@ namespace PersonalFinanceTracker
             containerRegistry.Register<IAwsDynamoDbService, AwsDynamoDbService>();
             containerRegistry.RegisterInstance<IAmazonDynamoDB>(new AmazonDynamoDBClient());
             containerRegistry.RegisterSingleton(typeof(ILogger<>), typeof(Logger<>));
+            containerRegistry.RegisterSingleton<IUserSessionService, UserSessionService>();
 
             // WindowFactory with deferred SignUpViewModel resolution
             containerRegistry.RegisterInstance<IWindowFactory>(
