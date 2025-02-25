@@ -11,7 +11,10 @@ namespace PersonalFinanceTracker.Backend.Interfaces
     public interface IWindowFactory
     {
         Window CreateSignUpWindow();
-
+        Window CreateSignInWindow();
         SignUpViewModel CreateSignUpViewModel();
+        SignInViewModel CreateSignInViewModel();
+
+
     }
 }

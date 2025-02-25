@@ -55,5 +55,25 @@ namespace PersonalFinanceTracker.Views
             return false;
         }
         #endregion
+
+        #region // Expense Amount Field
+        private void ExpenseAmountField_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (decimal.TryParse(ExpenseAmountField.Text, out decimal amount))
+            {
+                ExpenseAmountField.Text = amount.ToString("N2"); // Format as currency with two decimal places
+            }
+            else
+            {
+                ExpenseAmountField.Text = "0.00"; // Fallback for invalid input
+            }
+        }
+
+        private void ExpenseAmountField_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            // Allow only digits and a single dot
+            e.Handled = !IsTextAllowed(e.Text, (sender as TextBox).Text);
+        }
+        #endregion
     }
 }

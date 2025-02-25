@@ -57,6 +57,7 @@ namespace PersonalFinanceTracker
             // View and ViewModel registrations
             containerRegistry.RegisterForNavigation<UploadTransactionView>();
             containerRegistry.Register<SignUpViewModel>();
+            containerRegistry.Register<SignInViewModel>();
             containerRegistry.Register<MainWindow>();
 
             // Main window dependencies
@@ -70,10 +71,11 @@ namespace PersonalFinanceTracker
             containerRegistry.RegisterInstance<IAmazonDynamoDB>(new AmazonDynamoDBClient());
             containerRegistry.RegisterSingleton(typeof(ILogger<>), typeof(Logger<>));
             containerRegistry.RegisterSingleton<IUserSessionService, UserSessionService>();
+            containerRegistry.Register<IFinancialDataService, FinancialDataService>();
 
             // WindowFactory with deferred SignUpViewModel resolution
             containerRegistry.RegisterInstance<IWindowFactory>(
-                new WindowFactory(() => Container.Resolve<SignUpViewModel>(), Services)
+                new WindowFactory(() => Container.Resolve<SignUpViewModel>(), () => Container.Resolve<SignInViewModel>(), Services)
             );
         }
 
@@ -87,6 +89,7 @@ namespace PersonalFinanceTracker
             // Stateless backend services
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IAwsDynamoDbService, AwsDynamoDbService>();
+            services.AddTransient<IFinancialDataService, FinancialDataService>();
 
             // Shared single-instance services
             services.AddSingleton<INavigationService, NavigationService>();

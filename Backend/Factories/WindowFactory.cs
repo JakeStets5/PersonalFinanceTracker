@@ -17,8 +17,11 @@ namespace PersonalFinanceTracker.Backend.Factories
 
         private readonly Func<SignUpViewModel> _createSignUpViewModel;
 
-        public WindowFactory(Func<SignUpViewModel> createSignUpViewModel, IServiceProvider serviceProvider)
+        private readonly Func<SignInViewModel> _createSignInViewModel;
+
+        public WindowFactory(Func<SignUpViewModel> createSignUpViewModel, Func<SignInViewModel> createSignInViewModel, IServiceProvider serviceProvider)
         {
+            _createSignInViewModel = createSignInViewModel;
             _createSignUpViewModel = createSignUpViewModel;
             _serviceProvider = serviceProvider;
         }
@@ -32,6 +35,17 @@ namespace PersonalFinanceTracker.Backend.Factories
         {
             return new SignUpWindow(_createSignUpViewModel());
         }
+
+        public SignInViewModel CreateSignInViewModel()
+        {
+            return _serviceProvider.GetRequiredService<SignInViewModel>();
+        }
+
+        public Window CreateSignInWindow()
+        {
+            return new SignInWindow(_createSignInViewModel());
+        }
+
     }
 
 }

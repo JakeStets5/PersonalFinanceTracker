@@ -20,7 +20,7 @@ namespace PersonalFinanceTracker.Backend.Models
         public decimal Amount { get; set; }
         public string Source { get; set; }
         public string Frequency { get; set; }
-        public string Date { get; set; }
+        public DateTime Date { get; set; }
         public string PaymentMethod { get; set; }
     }
 }

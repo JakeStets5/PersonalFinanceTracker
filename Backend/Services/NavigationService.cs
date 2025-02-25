@@ -36,11 +36,16 @@ namespace PersonalFinanceTracker.Backend.Services
                 }
             });
         }
-
         public void OpenSignUpWindow()
         {
             var signUpWindow = _windowFactory.CreateSignUpWindow();
             signUpWindow.Show();
+        }
+
+        public void OpenSignInWindow()
+        {
+            var signInWindow = _windowFactory.CreateSignInWindow();
+            signInWindow.Show();
         }
     }
 

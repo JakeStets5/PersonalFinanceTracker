@@ -92,5 +92,42 @@ namespace PersonalFinanceTracker.Backend.Services
 
             }
         }
+
+        public async Task<List<Statement>> GetStatementsByUserIdAsync(string userId)
+        {
+            try
+            {
+                var table = Table.LoadTable(_dynamoDb, _statementsTable);
+
+                // Query all statements where UserId matches
+                var filter = new QueryFilter("UserId", QueryOperator.Equal, userId);
+                var search = table.Query(filter);
+
+                var statements = new List<Statement>();
+                List<Document> documentList = await search.GetRemainingAsync();
+
+                foreach (var document in documentList)
+                {
+                    statements.Add(new Statement
+                    {
+                        UserId = document["UserId"],
+                        StatementId = document["StatementId"],
+                        Type = document["Type"],
+                        Amount = document["Amount"].AsDecimal(),
+                        Source = document["Source"],
+                        Frequency = document["Frequency"],
+                        Date = document["Date"].AsDateTime(),
+                        PaymentMethod = document["PaymentMethod"]
+                    });
+                }
+
+                return statements;
+            }
+            catch (Exception ex)
+            {
+                _logger.Value.LogError(ex, "Error fetching statements for user {UserId}", userId);
+                return new List<Statement>(); // Return empty list on failure
+            }
+        }
     }
 }
