@@ -11,6 +11,7 @@
     
     <UserControl.Resources>
 
+        <!-- TextBox Style -->
         <Style TargetType="TextBox">
             <Setter Property="Foreground" Value="Black" />
             <Setter Property="FontSize" Value="14" />
@@ -26,7 +27,7 @@
                         <Border Background="{TemplateBinding Background}" 
                         BorderBrush="{TemplateBinding BorderBrush}" 
                         BorderThickness="{TemplateBinding BorderThickness}" 
-                        CornerRadius="5">
+                        CornerRadius="4">
                             <!-- Adjust this value for rounded corners -->
                             <ScrollViewer Margin="0" x:Name="PART_ContentHost"/>
                         </Border>
@@ -42,7 +43,25 @@
             </Style.Triggers>
         </Style>
 
-        <Style TargetType="DatePicker">
+        <!-- Calkendar Style -->
+        <Style x:Key="styleCalendar" TargetType="{x:Type Calendar}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Calendar}">
+                        <Viewbox Width="248"
+                             Height="248">
+                            <CalendarItem x:Name="PART_CalendarItem"
+                                      Background="{TemplateBinding Background}"
+                                      BorderBrush="{TemplateBinding BorderBrush}"
+                                      BorderThickness="{TemplateBinding BorderThickness}"/>
+                        </Viewbox>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Date Picker Style -->
+        <Style x:Key="CustomDatePickerStyle" TargetType="DatePicker">
             <Setter Property="Foreground" Value="Black" />
             <Setter Property="FontSize" Value="14" />
             <Setter Property="BorderBrush" Value="#597a7f" />
@@ -50,45 +69,103 @@
             <Setter Property="Background" Value="#C6B9CD" />
             <Setter Property="Padding" Value="5" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-
+            <Setter Property="Cursor" Value="Arrow"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="DatePicker">
-                        <Border Background="{TemplateBinding Background}" 
-                        BorderBrush="{TemplateBinding BorderBrush}" 
-                        BorderThickness="{TemplateBinding BorderThickness}" 
-                        CornerRadius="5">
+                        <Border x:Name="OuterBorder"
+                                Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="4">
                             <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Date Display -->
                                 <DatePickerTextBox x:Name="PART_TextBox"
+                                                   Grid.Column="0"
                                                    Foreground="{TemplateBinding Foreground}"
                                                    Background="{TemplateBinding Background}"
                                                    Padding="{TemplateBinding Padding}"
-                                                   BorderThickness="0"
-                                                   BorderBrush="Green"
                                                    FocusVisualStyle="{x:Null}"
-                                                   IsReadOnly="True"/>
+                                                   IsReadOnly="True">
+                                    <DatePickerTextBox.Template>
+                                        <ControlTemplate TargetType="DatePickerTextBox">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    BorderThickness="0"
+                                                    CornerRadius="4"
+                                                    BorderBrush="Transparent">
+                                                <ScrollViewer x:Name="PART_ContentHost" />
+                                            </Border>
+                                        </ControlTemplate>
+                                    </DatePickerTextBox.Template>
+                                </DatePickerTextBox>
+
+                                <!-- Calendar Button -->
                                 <Button x:Name="PART_Button"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                HorizontalAlignment="Right"
-                                Cursor="Hand">
+                                        Width="30"
+                                        Height="30"
+                                        Grid.Column="1"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" CornerRadius="4">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="ButtonBorder" Property="Background" Value="White"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
                                     <ContentControl Content="📅" FontSize="20"/>
                                 </Button>
+
+                                <!-- Popup with Calendar -->
+                                <Popup x:Name="PART_Popup"
+                                       Width="250"
+                                       Height="250"
+                                       PlacementTarget="{Binding ElementName=PART_TextBox}"
+                                       Placement="Bottom"
+                                       IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                       StaysOpen="False">
+                                    <Border Background="Red"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="1">
+                                        <Grid Width="248"
+                                              Height="248"
+                                              Background="Green">
+                                            <Calendar x:Name="PART_Calendar"
+                                                      Style="{StaticResource styleCalendar}"
+                                                      Background="Yellow" 
+                                                      SelectedDate="{Binding SelectedDate, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                                      DisplayDate="{Binding SelectedDate, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"/>
+                                        </Grid>
+                                    </Border>
+                                </Popup>
                             </Grid>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="White"/>
+                            </Trigger>
+                            <!-- Link Button to Popup -->
+                            <Trigger SourceName="PART_Button" Property="IsPressed" Value="True">
+                                <Setter Property="IsDropDownOpen" Value="True"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-
-            <!-- Hover Trigger -->
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="White"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
 
-
+        <!-- ComboBox Style -->
         <Style TargetType="ComboBox">
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="FontSize" Value="14"/>
@@ -103,19 +180,39 @@
                             <Border Background="{TemplateBinding Background}" 
                                     BorderBrush="{TemplateBinding BorderBrush}" 
                                     BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="3">
+                                    CornerRadius="4">
                                 <DockPanel>
                                     <TextBlock Text="{TemplateBinding Text}" 
                                                VerticalAlignment="Center" 
                                                Padding="{TemplateBinding Padding}" 
                                                Foreground="{TemplateBinding Foreground}" />
-                                    <ToggleButton
-                                                  Focusable="False" 
+                                    <ToggleButton Focusable="False" 
                                                   HorizontalAlignment="Right"
                                                   Width="30"
+                                                  Height="30"
+                                                  Cursor="Hand"
+                                                  BorderThickness="0"
                                                   IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
                                                   Background="{TemplateBinding Background}">
-                                        <ContentControl Content="▼" Foreground="Black" />
+                                        <ToggleButton.Template>
+                                            <ControlTemplate TargetType="ToggleButton">
+                                                <Border x:Name="ToggleButtonBorder" 
+                                                        Background="{TemplateBinding Background}" 
+                                                        CornerRadius="4">
+                                                    <ContentPresenter HorizontalAlignment="Center" 
+                                                                      VerticalAlignment="Center"
+                                                                      Content="{TemplateBinding Content}"
+                                                                      TextElement.Foreground="Black"
+                                                                      TextElement.FontSize="20"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="ToggleButtonBorder" Property="Background" Value="White"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </ToggleButton.Template>
+                                        ▼ <!-- Simplified content -->
                                     </ToggleButton>
                                 </DockPanel>
                             </Border>
@@ -143,6 +240,7 @@
             </Style.Triggers>
         </Style>
 
+        <!-- ComboBoxItem Style -->
         <Style TargetType="ComboBoxItem">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="Black"/>
@@ -153,20 +251,19 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBoxItem">
                         <Border Background="{TemplateBinding Background}"
-                        Padding="{TemplateBinding Padding}">
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
                             <ContentPresenter />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="#1c2b2e"/>
                                 <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="Cursor" Value="Hand"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter Property="Background" Value="#597a7f"/>
                                 <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Foreground" Value="Gray"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -195,12 +292,12 @@
                                 <!-- Header Background -->
                                 <Border Background="#597a7f" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10, -10, 0, 0" CornerRadius="3">
                                     <TextBlock Text="{TemplateBinding Header}"
-                                       Foreground="White"
-                                       FontFamily="Montserrat"
-                                       FontSize="18"
-                                       FontWeight="Bold"
-                                       Padding="5,2"
-                                       VerticalAlignment="Center"/>
+                                               Foreground="White"
+                                               FontFamily="Montserrat"
+                                               FontSize="18"
+                                               FontWeight="Bold"
+                                               Padding="5,2"
+                                               VerticalAlignment="Center"/>
                                 </Border>
                                 <!-- Content -->
                                 <ContentPresenter Margin="10,20,10,10"/>
@@ -222,7 +319,6 @@
         <!-- Button Style -->
         <Style x:Key="IEButtonStyle" TargetType="Button">
             <Setter Property="Foreground" Value="White" />
-            <Setter Property="FontFamily" Value="Montserrat" />
             <Setter Property="FontSize" Value="14" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Padding" Value="5,5"/>
@@ -329,27 +425,21 @@
                     <Label Content="Date" />
                     <Grid>
                         <DatePicker x:Name="IncomeDatePicker"
-                                    SelectedDate="{Binding IncomeDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    Background="#C6B9CD"
-                                    Foreground="Black"
-                                    BorderBrush="#597a7f"
-                                    BorderThickness="2"
-                                    FontSize="14"
-                                    Padding="5" 
-                                    VerticalContentAlignment="Center">
-                            <DatePicker.Resources>
-                                <Style TargetType="DatePickerTextBox">
-                                    <Setter Property="IsReadOnly" Value="True"/>
-                                </Style>
-                            </DatePicker.Resources>
+                                    Style="{StaticResource CustomDatePickerStyle}"
+                                    SelectedDate="{Binding IncomeDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                         </DatePicker>
+                        <TextBlock Text="Select income date"
+                                   Style="{StaticResource PlaceholderTextBlockStyle}"
+                                   Visibility="{Binding Text, ElementName=IncomeDatePicker, Converter={StaticResource PlaceholderTextVisibilityConverter}}"/>               
                     </Grid>
 
                     <!-- Payment Method -->
                     <Label Content="Payment Method" />
                     <Grid>
-                        <TextBox x:Name="IncomePaymentMethodField"
-                     Text="{Binding IncomePaymentMethod, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <ComboBox x:Name="IncomePaymentMethodField"
+                                  ItemsSource="{Binding IncomePaymentMethodOptions}"
+                                  SelectedItem="{Binding IncomeIncomePaymentMethod, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                  IsEditable="True"/>
                         <TextBlock Text="Enter method of received payment"
                                    Style="{StaticResource PlaceholderTextBlockStyle}"
                                    Visibility="{Binding Text, ElementName=IncomePaymentMethodField, Converter={StaticResource PlaceholderTextVisibilityConverter}}"/>

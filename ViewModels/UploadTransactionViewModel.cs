@@ -109,6 +109,17 @@ namespace PersonalFinanceTracker.ViewModels
             "Other"
         };
 
+        public ObservableCollection<string> IncomePaymentMethodOptions { get; set; } = new ObservableCollection<string>
+        {
+            "Cash",
+            "Credit Card",
+            "Debit Card",
+            "Check",
+            "Bank Transfer",
+            "Third Party App",
+            "Other"
+        };
+
         public ObservableCollection<string> IncomeTemplates { get; set; } = new ObservableCollection<string>();
         public ObservableCollection<string> ExpenseTemplates { get; set; } = new ObservableCollection<string>();
 
