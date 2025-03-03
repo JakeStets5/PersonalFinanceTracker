@@ -9,6 +9,6 @@ namespace PersonalFinanceTracker.Backend.Interfaces
 {
     public interface IFinancialDataService
     {
-        Task<FinancialBreakdown> GetFinancialBreakdownAsync(string userId);
+        Task<FinancialBreakdown> GetFinancialBreakdownAsync(string userId, DateTime startDate, DateTime endDate);
     }
 }

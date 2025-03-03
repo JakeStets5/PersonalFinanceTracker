@@ -17,16 +17,20 @@ namespace PersonalFinanceTracker.Backend.Services
             _dynamoDbService = dynamoDbService;
         }
 
-        public async Task<FinancialBreakdown> GetFinancialBreakdownAsync(string userId)
+        public async Task<FinancialBreakdown> GetFinancialBreakdownAsync(string userId, DateTime startDate, DateTime endDate)
         {
             var statements = await _dynamoDbService.GetStatementsByUserIdAsync(userId);
+            // Filter transactions by date range
+            var filteredStatements = statements
+                .Where(t => t.Date >= startDate && t.Date <= endDate)
+                .ToList();
 
-            var incomeBreakdown = statements
+            var incomeBreakdown = filteredStatements
                 .Where(s => s.Type == "Income")
                 .GroupBy(s => s.Source)
                 .ToDictionary(g => g.Key, g => g.Sum(s => s.Amount));
 
-            var expenseBreakdown = statements
+            var expenseBreakdown = filteredStatements
                 .Where(s => s.Type == "Expense")
                 .GroupBy(s => s.Source)
                 .ToDictionary(g => g.Key, g => g.Sum(s => s.Amount));

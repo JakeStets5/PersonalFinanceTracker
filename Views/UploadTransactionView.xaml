@@ -195,8 +195,7 @@
                                             CornerRadius="4">
                                         <Calendar x:Name="PART_Calendar"
                                                       Style="{StaticResource styleCalendar}"
-                                                      SelectedDate="{Binding SelectedDate, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-                                                      DisplayDate="{Binding SelectedDate, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"/>
+                                                      SelectedDate="{Binding SelectedDate, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"/>
                                     </Border>
                                 </Popup>
                             </Grid>
@@ -392,6 +391,11 @@
             </Setter>
         </Style>
 
+        <!-- Pie Chart Legend Style -->
+        <Style TargetType="{x:Type lvc:DefaultLegend}">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
     </UserControl.Resources>
 
     <Grid>
@@ -582,40 +586,62 @@
         </StackPanel>
 
         <!-- Breakdown Section -->
-        <GroupBox Header="Breakdown" Grid.Column="2" Margin="10">
-            <Grid>
-                <!-- Sign In Message (Shown if user is NOT signed in) -->
-                <StackPanel x:Name="SignInPrompt" Visibility="{Binding IsUserSignedIn, Converter={StaticResource InvertedBoolToVisibilityConverter}}" 
-                            HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock Text="Please sign in to view your financial breakdown." 
-                               FontSize="16" FontWeight="Bold" TextAlignment="Center"/>
-                    <Button Content="Sign In" Style="{StaticResource IEButtonStyle}" Command="{Binding SignInCommand}" 
-                            Padding="10,5" Margin="10" HorizontalAlignment="Center"/>
-                </StackPanel>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Column="2">
+            <GroupBox Header="Breakdown" Margin="10">
+                <Grid>
+                    <!-- Sign In Message (Shown if user is NOT signed in) -->
+                    <StackPanel x:Name="SignInPrompt" Visibility="{Binding IsUserSignedIn, Converter={StaticResource InvertedBoolToVisibilityConverter}}" 
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="Please sign in to view your financial breakdown." 
+                       FontSize="16" FontWeight="Bold" TextAlignment="Center"/>
+                        <Button Content="Sign In" Style="{StaticResource IEButtonStyle}" Command="{Binding SignInCommand}" 
+                    Padding="10,5" Margin="10" HorizontalAlignment="Center"/>
+                    </StackPanel>
 
-                <!-- Financial Breakdown (Shown if user IS signed in) -->
-                <StackPanel x:Name="BreakdownSection" Visibility="{Binding IsUserSignedIn, Converter={StaticResource BoolToVisibilityConverter}}"
-                            HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock Text="Financial Breakdown" FontSize="20" FontWeight="Bold" TextAlignment="Center"/>
-                    
-                    <!-- Income Pie Chart -->
+                    <!-- Financial Breakdown (Shown if user IS signed in) -->
+                    <StackPanel x:Name="BreakdownSection" Visibility="{Binding IsUserSignedIn, Converter={StaticResource BoolToVisibilityConverter}}"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="Financial Breakdown" FontSize="20" FontWeight="Bold" TextAlignment="Center"/>
+
+                        <!-- Income Date Range Selection -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+                            <Label Content="From:" VerticalAlignment="Center" Margin="5"/>
+                            <DatePicker CalendarStyle="{StaticResource styleCalendar}"
+                                        Style="{StaticResource CustomDatePickerStyle}" 
+                                        SelectedDate="{Binding StartDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <Label Content="To:" VerticalAlignment="Center" Margin="5"/>
+                            <DatePicker CalendarStyle="{StaticResource styleCalendar}"
+                                        Style="{StaticResource CustomDatePickerStyle}" SelectedDate="{Binding EndDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <!-- Income Pie Chart -->
                         <TextBlock Text="Income Breakdown" FontSize="16" FontWeight="Bold" Margin="0,10,0,5"/>
-                        <lvc:PieChart Series="{Binding IncomeSeries}" Width="300" Height="300">
+                        <lvc:PieChart Series="{Binding IncomeSeries}" Width="400" Height="400">
                             <lvc:PieChart.LegendLocation>Bottom</lvc:PieChart.LegendLocation>
                         </lvc:PieChart>
 
+                        <!-- Expense Date Range Selection -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+                            <Label Content="From:" VerticalAlignment="Center" Margin="5"/>
+                            <DatePicker CalendarStyle="{StaticResource styleCalendar}"
+                                        Style="{StaticResource CustomDatePickerStyle}" SelectedDate="{Binding StartDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <Label Content="To:" VerticalAlignment="Center" Margin="5"/>
+                            <DatePicker CalendarStyle="{StaticResource styleCalendar}"
+                                        Style="{StaticResource CustomDatePickerStyle}" SelectedDate="{Binding EndDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
                         <!-- Expense Pie Chart -->
                         <TextBlock Text="Expense Breakdown" FontSize="16" FontWeight="Bold" Margin="0,10,0,5"/>
-                    <lvc:PieChart Series="{Binding ExpenseSeries}" Width="300" Height="300">
-                        <lvc:PieChart.LegendLocation>Bottom</lvc:PieChart.LegendLocation>
-                    </lvc:PieChart>
+                        <lvc:PieChart Series="{Binding ExpenseSeries}" Width="400" Height="400">
+                            <lvc:PieChart.LegendLocation>Bottom</lvc:PieChart.LegendLocation>
+                        </lvc:PieChart>
 
-                    <!-- Refresh Button -->
-                    <Button Content="Refresh" Style="{StaticResource IEButtonStyle}" Command="{Binding RefreshBreakdownCommand}" Padding="10,5" Margin="10"/>
-                </StackPanel>
-            </Grid>
+                        <!-- Refresh Button -->
+                        <Button Content="Refresh" Style="{StaticResource IEButtonStyle}" Command="{Binding RefreshCommand}" Padding="10,5" Margin="10"/>
+                    </StackPanel>
+                </Grid>
 
-        </GroupBox>
-
+            </GroupBox>
+        </ScrollViewer>
     </Grid>
 </UserControl>

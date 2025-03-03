@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Hosting.Server;
 using PersonalFinanceTracker.Backend.Services;
 using System.Diagnostics;
 using Unity;
+using System.Windows.Media;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace PersonalFinanceTracker.ViewModels
 {
@@ -53,7 +55,7 @@ namespace PersonalFinanceTracker.ViewModels
             set => SetProperty(ref _incomeFrequency, value);
         }
 
-        private DateTime _incomeDate;
+        private DateTime _incomeDate = DateTime.Now;
         public DateTime IncomeDate
         {
             get => _incomeDate;
@@ -81,7 +83,7 @@ namespace PersonalFinanceTracker.ViewModels
             set => SetProperty(ref _expenseFrequency, value);
         }
 
-        private DateTime _expenseDate;
+        private DateTime _expenseDate = DateTime.Now;
         public DateTime ExpenseDate
         {
             get => _expenseDate;
@@ -166,6 +168,33 @@ namespace PersonalFinanceTracker.ViewModels
         };
         #endregion
 
+        private DateTime _startDate = DateTime.Today.AddMonths(-1);
+        public DateTime StartDate
+        {
+            get => _startDate;
+            set
+            {
+                if (_startDate != value) // Prevent redundant updates
+                {
+                    _startDate = value;
+                    OnPropertyChanged(nameof(StartDate));
+                    LoadFinancialDataAsync(); // Refresh chart when date changes
+                }
+            }
+        }
+
+        private DateTime _endDate;
+        public DateTime EndDate
+        {
+            get => _endDate;
+            set
+            {
+                _endDate = value;
+                OnPropertyChanged(nameof(EndDate));
+                LoadFinancialDataAsync(); // Refresh chart when date changes
+            }
+        }
+
         private bool _isUserSignedIn;
         public bool IsUserSignedIn
         {
@@ -207,6 +236,20 @@ namespace PersonalFinanceTracker.ViewModels
             }
         }
 
+        private List<SolidColorBrush> GetChartColors() => new()
+        {
+            (SolidColorBrush)new BrushConverter().ConvertFrom("#0F4C5C"),
+            (SolidColorBrush)new BrushConverter().ConvertFrom("#10375C"),
+            (SolidColorBrush)new BrushConverter().ConvertFrom("#136F63"),
+            (SolidColorBrush)new BrushConverter().ConvertFrom("#5D3754"),
+            (SolidColorBrush)new BrushConverter().ConvertFrom("#3E3A66"),
+            (SolidColorBrush)new BrushConverter().ConvertFrom("#1B3A4B"),
+            (SolidColorBrush)new BrushConverter().ConvertFrom("#2C497F"),
+            (SolidColorBrush)new BrushConverter().ConvertFrom("#4E5166"),
+            (SolidColorBrush)new BrushConverter().ConvertFrom("#6B2737"),
+            (SolidColorBrush)new BrushConverter().ConvertFrom("#264653")
+        };
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public ObservableCollection<string> IncomeTemplates { get; set; } = new ObservableCollection<string>();
@@ -217,6 +260,7 @@ namespace PersonalFinanceTracker.ViewModels
         public ICommand AddExpenseStatementCommand { get; }
         public ICommand SaveExpenseTemplateCommand { get; }
         public ICommand SignInCommand { get; }
+        public ICommand RefreshCommand { get; }
 
         private readonly IAwsDynamoDbService _dynamoDbService;
         private readonly IUserSessionService _userSessionService;
@@ -236,8 +280,12 @@ namespace PersonalFinanceTracker.ViewModels
             AddExpenseStatementCommand = new RelayCommand(AddExpenseStatement);
             SaveExpenseTemplateCommand = new RelayCommand(SaveExpenseTemplate);
             SignInCommand = new RelayCommand(SignIn);
+            RefreshCommand = new RelayCommand(Refresh);
 
             _userSessionService.UserSignedIn += OnUserSignedIn;
+
+            _startDate = DateTime.Today.AddMonths(-1); // Default: One month ago
+            _endDate = DateTime.Today;
         }
 
         private async void OnUserSignedIn(User? user)
@@ -250,6 +298,11 @@ namespace PersonalFinanceTracker.ViewModels
         {
             _userSessionService.UserSignedIn -= OnUserSignedIn;
             GC.SuppressFinalize(this);
+        }
+
+        private async void Refresh()
+        {
+            await LoadFinancialDataAsync();
         }
 
         private async void AddIncomeStatement()
@@ -327,6 +380,26 @@ namespace PersonalFinanceTracker.ViewModels
             // Logic to save an expense template
         }
 
+        private SeriesCollection GenerateSeriesCollection(Dictionary<string, decimal> data)
+        {
+            var colors = GetChartColors();
+            var series = new SeriesCollection();
+
+            foreach (var kvp in data)
+            {
+                series.Add(new PieSeries
+                {
+                    Title = kvp.Key,
+                    Values = new ChartValues<decimal> { kvp.Value },
+                    DataLabels = true,
+                    LabelPoint = chartPoint => $"{chartPoint.Y:C}",
+                    Fill = colors[data.Keys.ToList().IndexOf(kvp.Key) % colors.Count] // Safe index
+                });
+            }
+
+            return series;
+        }
+
         private async Task LoadFinancialDataAsync()
         {
             if (!_userSessionService.IsUserLoggedIn)
@@ -336,32 +409,12 @@ namespace PersonalFinanceTracker.ViewModels
             }
 
             var userId = _userSessionService.UserId;
-            var breakdown = await _financialDataService.GetFinancialBreakdownAsync(userId);
+            var breakdown = await _financialDataService.GetFinancialBreakdownAsync(userId, StartDate, EndDate);
 
-            IncomeSeries = new SeriesCollection();
-            foreach (var kvp in breakdown.IncomeByCategory)
-            {
-                IncomeSeries.Add(new PieSeries
-                {
-                    Title = kvp.Key,
-                    Values = new ChartValues<decimal> { kvp.Value }
-                });
-            }
-
-            // Notify the UI about the change
+            IncomeSeries = GenerateSeriesCollection(breakdown.IncomeByCategory);
             OnPropertyChanged(nameof(IncomeSeries));
 
-            ExpenseSeries = new SeriesCollection();
-            foreach(var kvp in breakdown.ExpensesByCategory)
-            {
-                ExpenseSeries.Add(new PieSeries
-                {
-                    Title = kvp.Key,
-                    Values = new ChartValues<decimal> { kvp.Value }
-                });
-            }
-
-            // Notify the UI about the change
+            ExpenseSeries = GenerateSeriesCollection(breakdown.ExpensesByCategory);
             OnPropertyChanged(nameof(ExpenseSeries));
 
             IsUserSignedIn = true;
