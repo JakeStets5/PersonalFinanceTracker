@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PersonalFinanceTracker.Backend.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,8 @@ namespace PersonalFinanceTracker.Backend.Interfaces
         string UserId { get; }
         string Username { get; }
         bool IsUserLoggedIn { get; }
+
+        event Action<User?>? UserSignedIn;
         void SetUser(string userId, string username);
         void ClearUser();
     }

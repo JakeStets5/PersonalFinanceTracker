@@ -33,6 +33,8 @@ namespace PersonalFinanceTracker.ViewModels
 
         private readonly IPFTDialogService _dialogService; // For any pop up dialog
 
+        private readonly IUserSessionService _userSessionService; // To help with user session management
+
         public bool IsPasswordPlaceholderVisible => string.IsNullOrEmpty(TempPassword); // To make the placeholder text for password vanish
         public char PasswordMaskChar => IsPasswordVisible ? '\0' : '●';
 
@@ -99,8 +101,9 @@ namespace PersonalFinanceTracker.ViewModels
             }
         }
 
-        public SignInViewModel(IUserRepository userRepository, INavigationService navigationService, IPFTDialogService dialogService)
+        public SignInViewModel(IUserRepository userRepository, INavigationService navigationService, IPFTDialogService dialogService, IUserSessionService userSessionService)
         {
+            _userSessionService = userSessionService;
             _userRepository = userRepository;
             _navigationService = navigationService;
             _dialogService = dialogService;
@@ -213,6 +216,7 @@ namespace PersonalFinanceTracker.ViewModels
                 }
 
                 // Authentication successful
+                _userSessionService.SetUser(user.UserId, user.Username);
                 _dialogService.ShowSuccessMessage("Sign In Successful!");
                 CloseAction?.Invoke();
                 return true;

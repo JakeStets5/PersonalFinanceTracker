@@ -25,9 +25,10 @@ namespace PersonalFinanceTracker.Views
         {
             InitializeComponent();
             DataContext = uploadTransactionViewModel;
+            this.Unloaded += (s, e) => uploadTransactionViewModel.Dispose();
         }
 
-        #region // Income Amount Field
+        #region // Income Amount Field (Formatting)
         private void IncomeAmountField_LostFocus(object sender, RoutedEventArgs e)
         {
             if (decimal.TryParse(IncomeAmountField.Text, out decimal amount))
@@ -56,7 +57,7 @@ namespace PersonalFinanceTracker.Views
         }
         #endregion
 
-        #region // Expense Amount Field
+        #region // Expense Amount Field (Formatting)
         private void ExpenseAmountField_LostFocus(object sender, RoutedEventArgs e)
         {
             if (decimal.TryParse(ExpenseAmountField.Text, out decimal amount))

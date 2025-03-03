@@ -15,10 +15,12 @@ using System.Windows;
 using System.Windows.Input;
 using Microsoft.AspNetCore.Hosting.Server;
 using PersonalFinanceTracker.Backend.Services;
+using System.Diagnostics;
+using Unity;
 
 namespace PersonalFinanceTracker.ViewModels
 {
-    public class UploadTransactionViewModel : BindableBase
+    public class UploadTransactionViewModel : BindableBase, IDisposable, INotifyPropertyChanged
     {
        
         #region I/E Fields
@@ -94,37 +96,6 @@ namespace PersonalFinanceTracker.ViewModels
         }
         #endregion
 
-        private bool _isUserSignedIn;
-        public bool IsUserSignedIn
-        {
-            get => _isUserSignedIn;
-            set => SetProperty(ref _isUserSignedIn, value);
-        }
-
-        private SeriesCollection _incomeSeries;
-        public SeriesCollection IncomeSeries
-        {
-            get => _incomeSeries;
-            set
-            {
-                _incomeSeries = value;
-                OnPropertyChanged(nameof(IncomeSeries));
-            }
-        }
-
-        private SeriesCollection _expenseSeries;
-        public SeriesCollection ExpenseSeries
-        {
-            get => _expenseSeries;
-            set
-            {
-                _expenseSeries = value;
-                OnPropertyChanged(nameof(ExpenseSeries));
-            }
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
         #region Dropdown Options
         public ObservableCollection<string> IncomeSourceOptions { get; set; } = new ObservableCollection<string>
         {
@@ -195,6 +166,49 @@ namespace PersonalFinanceTracker.ViewModels
         };
         #endregion
 
+        private bool _isUserSignedIn;
+        public bool IsUserSignedIn
+        {
+            get => _isUserSignedIn;
+            set => SetProperty(ref _isUserSignedIn, value);
+        }
+
+        private User? _currentUser;
+
+        public User? CurrentUser
+        {
+            get => _currentUser;
+            private set
+            {
+                SetProperty(ref _currentUser, value);
+                OnPropertyChanged(nameof(IsUserSignedIn));
+            }
+        }
+
+        private SeriesCollection _incomeSeries;
+        public SeriesCollection IncomeSeries
+        {
+            get => _incomeSeries;
+            set
+            {
+                _incomeSeries = value;
+                OnPropertyChanged(nameof(IncomeSeries));
+            }
+        }
+
+        private SeriesCollection _expenseSeries;
+        public SeriesCollection ExpenseSeries
+        {
+            get => _expenseSeries;
+            set
+            {
+                _expenseSeries = value;
+                OnPropertyChanged(nameof(ExpenseSeries));
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         public ObservableCollection<string> IncomeTemplates { get; set; } = new ObservableCollection<string>();
         public ObservableCollection<string> ExpenseTemplates { get; set; } = new ObservableCollection<string>();
 
@@ -223,7 +237,19 @@ namespace PersonalFinanceTracker.ViewModels
             SaveExpenseTemplateCommand = new RelayCommand(SaveExpenseTemplate);
             SignInCommand = new RelayCommand(SignIn);
 
-            LoadFinancialDataAsync();
+            _userSessionService.UserSignedIn += OnUserSignedIn;
+        }
+
+        private async void OnUserSignedIn(User? user)
+        {
+            IsUserSignedIn = true;
+            CurrentUser = user;
+            await LoadFinancialDataAsync();
+        }
+        public void Dispose()
+        {
+            _userSessionService.UserSignedIn -= OnUserSignedIn;
+            GC.SuppressFinalize(this);
         }
 
         private async void AddIncomeStatement()
@@ -312,30 +338,47 @@ namespace PersonalFinanceTracker.ViewModels
             var userId = _userSessionService.UserId;
             var breakdown = await _financialDataService.GetFinancialBreakdownAsync(userId);
 
-            IncomeSeries = new SeriesCollection(
-                breakdown.IncomeByCategory.Select(kvp =>
-                new PieSeries
+            IncomeSeries = new SeriesCollection();
+            foreach (var kvp in breakdown.IncomeByCategory)
+            {
+                IncomeSeries.Add(new PieSeries
                 {
                     Title = kvp.Key,
                     Values = new ChartValues<decimal> { kvp.Value }
-                })
-            );
+                });
+            }
 
-            ExpenseSeries = new SeriesCollection(
-                breakdown.ExpensesByCategory.Select(kvp =>
-                    new PieSeries
-                    {
-                        Title = kvp.Key,
-                        Values = new ChartValues<decimal> { kvp.Value }
-                    })
-            );
+            // Notify the UI about the change
+            OnPropertyChanged(nameof(IncomeSeries));
 
+            ExpenseSeries = new SeriesCollection();
+            foreach(var kvp in breakdown.ExpensesByCategory)
+            {
+                ExpenseSeries.Add(new PieSeries
+                {
+                    Title = kvp.Key,
+                    Values = new ChartValues<decimal> { kvp.Value }
+                });
+            }
+
+            // Notify the UI about the change
+            OnPropertyChanged(nameof(ExpenseSeries));
 
             IsUserSignedIn = true;
         }
 
-        protected void OnPropertyChanged(string propertyName) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        protected void OnPropertyChanged(string propertyName)
+        {
+            if (Application.Current?.Dispatcher?.CheckAccess() == false)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)));
+            }
+            else
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
 
         protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
         {

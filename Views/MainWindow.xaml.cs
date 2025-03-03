@@ -26,12 +26,13 @@ namespace PersonalFinanceTracker.Views
         private readonly IUserRepository _userRepository;
         private readonly INavigationService _navigationService;
         private readonly IPFTDialogService _dialogService;
+        private readonly IUserSessionService _userSessionService;
 
-        public MainWindow(MainWindowViewModel mainWindowViewModel, IUserRepository userRepository, INavigationService navigationService, IPFTDialogService dialogService)
+        public MainWindow(MainWindowViewModel mainWindowViewModel, IUserRepository userRepository, INavigationService navigationService, IPFTDialogService dialogService, IUserSessionService userSessionService)
         {
-
             try
             {
+                _userSessionService = userSessionService;
                 _userRepository = userRepository;
                 _navigationService = navigationService;
                 _dialogService = dialogService;
@@ -77,7 +78,7 @@ namespace PersonalFinanceTracker.Views
 
         private void SignInButton_Click(object sender, RoutedEventArgs e)
         {
-            var signInViewModel = new SignInViewModel(_userRepository, _navigationService, _dialogService);
+            var signInViewModel = new SignInViewModel(_userRepository, _navigationService, _dialogService, _userSessionService);
             SignInWindow signInWindow = new SignInWindow(signInViewModel);
             signInWindow.ShowDialog();
         }

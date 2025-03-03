@@ -488,7 +488,7 @@
                     <Grid>
                         <ComboBox x:Name="IncomePaymentMethodField"
                                   ItemsSource="{Binding IncomePaymentMethodOptions}"
-                                  SelectedItem="{Binding IncomeIncomePaymentMethod, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                  SelectedItem="{Binding IncomePaymentMethod, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                   IsEditable="True"/>
                         <TextBlock Text="Enter method of received payment"
                                    Style="{StaticResource PlaceholderTextBlockStyle}"
@@ -585,7 +585,7 @@
         <GroupBox Header="Breakdown" Grid.Column="2" Margin="10">
             <Grid>
                 <!-- Sign In Message (Shown if user is NOT signed in) -->
-                <StackPanel x:Name="SignInPrompt" Visibility="{Binding IsUserSignedIn, Converter={StaticResource InvertedBoolToVisibilityConverter}, ConverterParameter=False}" 
+                <StackPanel x:Name="SignInPrompt" Visibility="{Binding IsUserSignedIn, Converter={StaticResource InvertedBoolToVisibilityConverter}}" 
                             HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock Text="Please sign in to view your financial breakdown." 
                                FontSize="16" FontWeight="Bold" TextAlignment="Center"/>

@@ -65,6 +65,7 @@ namespace PersonalFinanceTracker
             containerRegistry.Register<IUserRepository, UserRepository>();
             containerRegistry.Register<INavigationService, NavigationService>();
             containerRegistry.Register<IPFTDialogService, PFTDialogService>();
+            containerRegistry.Register<IUserSessionService, UserSessionService>();  
 
             // Service and AWS registrations
             containerRegistry.Register<IAwsDynamoDbService, AwsDynamoDbService>();
@@ -90,6 +91,7 @@ namespace PersonalFinanceTracker
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IAwsDynamoDbService, AwsDynamoDbService>();
             services.AddTransient<IFinancialDataService, FinancialDataService>();
+            services.AddTransient<IUserSessionService, UserSessionService>();
 
             // Shared single-instance services
             services.AddSingleton<INavigationService, NavigationService>();
