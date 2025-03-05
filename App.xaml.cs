@@ -68,7 +68,7 @@ namespace PersonalFinanceTracker
             containerRegistry.Register<IUserSessionService, UserSessionService>();  
 
             // Service and AWS registrations
-            containerRegistry.Register<IAwsDynamoDbService, AwsDynamoDbService>();
+            containerRegistry.Register<ICloudDbService, AwsDynamoDbService>();
             containerRegistry.RegisterInstance<IAmazonDynamoDB>(new AmazonDynamoDBClient());
             containerRegistry.RegisterSingleton(typeof(ILogger<>), typeof(Logger<>));
             containerRegistry.RegisterSingleton<IUserSessionService, UserSessionService>();
@@ -89,7 +89,7 @@ namespace PersonalFinanceTracker
 
             // Stateless backend services
             services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<IAwsDynamoDbService, AwsDynamoDbService>();
+            services.AddTransient<ICloudDbService, AwsDynamoDbService>();
             services.AddTransient<IFinancialDataService, FinancialDataService>();
             services.AddTransient<IUserSessionService, UserSessionService>();
 

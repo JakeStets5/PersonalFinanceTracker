@@ -10,9 +10,9 @@ namespace PersonalFinanceTracker.Backend.Services
 {
     public class FinancialDataService : IFinancialDataService
     {
-        private readonly IAwsDynamoDbService _dynamoDbService;
+        private readonly ICloudDbService _dynamoDbService;
 
-        public FinancialDataService(IAwsDynamoDbService dynamoDbService)
+        public FinancialDataService(ICloudDbService dynamoDbService)
         {
             _dynamoDbService = dynamoDbService;
         }

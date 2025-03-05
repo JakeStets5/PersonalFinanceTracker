@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PersonalFinanceTracker.Backend.Interfaces
 {
-    public interface IAwsDynamoDbService
+    public interface ICloudDbService
     {
         Task AddUserAsync(User user);
         Task<User?> GetUserByIdAsync(string userId);

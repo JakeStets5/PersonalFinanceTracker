@@ -9,12 +9,12 @@ namespace PersonalFinanceTracker.Backend.Repositories
 {
     public class UserRepository: IUserRepository
     {
-        private readonly IAwsDynamoDbService _dynamoDbService;
+        private readonly ICloudDbService _dynamoDbService;
         private readonly IUserSessionService _userSessionService;
         private readonly Lazy<ILogger<UserRepository>> _logger;
         private readonly DynamoDBContext _context;
 
-        public UserRepository(IAwsDynamoDbService dynamoDbService, IUserSessionService userSessionService, Lazy<ILogger<UserRepository>> logger, DynamoDBContext context)
+        public UserRepository(ICloudDbService dynamoDbService, IUserSessionService userSessionService, Lazy<ILogger<UserRepository>> logger, DynamoDBContext context)
         {
             _userSessionService = userSessionService;
             _dynamoDbService = dynamoDbService;

@@ -262,13 +262,13 @@ namespace PersonalFinanceTracker.ViewModels
         public ICommand SignInCommand { get; }
         public ICommand RefreshCommand { get; }
 
-        private readonly IAwsDynamoDbService _dynamoDbService;
+        private readonly ICloudDbService _dynamoDbService;
         private readonly IUserSessionService _userSessionService;
         private readonly IFinancialDataService _financialDataService;
         private readonly INavigationService _navigationService;
 
 
-        public UploadTransactionViewModel(IAwsDynamoDbService dbService, IUserSessionService userSessionService, IFinancialDataService financialDataService, INavigationService navigationService)
+        public UploadTransactionViewModel(ICloudDbService dbService, IUserSessionService userSessionService, IFinancialDataService financialDataService, INavigationService navigationService)
         {
             _navigationService = navigationService;
             _financialDataService = financialDataService;   

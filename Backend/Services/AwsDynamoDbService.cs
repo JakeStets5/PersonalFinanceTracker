@@ -1,15 +1,17 @@
-﻿using PersonalFinanceTracker.Backend.Models;
+﻿
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using PersonalFinanceTracker.Backend.Interfaces;
+
 using Microsoft.EntityFrameworkCore;
+using PersonalFinanceTracker.Common.Models;
+using PersonalFinanceTracker.Common.Interfaces;
 
 namespace PersonalFinanceTracker.Backend.Services
 {
-    public class AwsDynamoDbService : IAwsDynamoDbService
+    public class AwsDynamoDbService : ICloudDbService
     {
         private readonly IAmazonDynamoDB _dynamoDb;
         private readonly Lazy<ILogger<AwsDynamoDbService>> _logger;

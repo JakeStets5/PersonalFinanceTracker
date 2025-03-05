@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <Folder Include="Assets\Database\" />
+    <Folder Include="Backend\Models\" />
     <Folder Include="Helpers\" />
     <Folder Include="Resources\" />
   </ItemGroup>
@@ -75,6 +76,10 @@
     <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.0" />
     <PackageReference Include="System.Text.Encodings.Web" Version="9.0.0" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="PersonalFinanceTracker.Common\PersonalFinanceTracker.Common.csproj" />
   </ItemGroup>
 
 </Project>
