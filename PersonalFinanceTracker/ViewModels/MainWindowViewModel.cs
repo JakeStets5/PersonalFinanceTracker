@@ -16,6 +16,7 @@ namespace PersonalFinanceTracker.ViewModels
         private readonly INavigationService _navigationService;
         private readonly IRegionManager _regionManager;
         public ICommand UploadTransactionCommand { get; private set;  }
+        public ICommand SignInCommand { get; private set; }
 
         public DelegateCommand<string> NavigateCommand { get; }
 
@@ -26,6 +27,7 @@ namespace PersonalFinanceTracker.ViewModels
             NavigateCommand = new DelegateCommand<string>(Navigate);
 
             UploadTransactionCommand = new DelegateCommand(OnUploadTransaction);
+            SignInCommand = new DelegateCommand(SignIn);
         }
 
         private void Navigate(string viewName)
@@ -34,6 +36,11 @@ namespace PersonalFinanceTracker.ViewModels
             {
                 _regionManager.RequestNavigate("MainRegion", viewName);
             }
+        }
+
+        private void SignIn()
+        {
+            _navigationService.OpenSignInWindow();
         }
 
         private void OnUploadTransaction()

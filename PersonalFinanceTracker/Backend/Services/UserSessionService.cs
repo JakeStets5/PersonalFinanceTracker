@@ -30,8 +30,9 @@ namespace PersonalFinanceTracker.Backend.Services
 
         public void SetUser(string userId, string username)
         {
-            UserId = userId;
-            Username = username;
+            Console.WriteLine($"SetUser called with userId={userId}, username={username}");
+            UserId = userId ?? throw new ArgumentNullException(nameof(userId));
+            Username = username ?? throw new ArgumentNullException(nameof(username));
             CurrentUser = new User { UserId = userId, Username = username };
         }
 

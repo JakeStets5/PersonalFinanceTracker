@@ -21,6 +21,7 @@ using System.Diagnostics;
 using Unity;
 using System.Windows.Media;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Amazon.Auth.AccessControlPolicy;
 
 namespace PersonalFinanceTracker.ViewModels
 {
@@ -268,10 +269,11 @@ namespace PersonalFinanceTracker.ViewModels
         private readonly IUserSessionService _userSessionService;
         private readonly IFinancialDataService _financialDataService;
         private readonly INavigationService _navigationService;
+        private readonly IApiClient _apiClient;
 
-
-        public UploadTransactionViewModel(ICloudDbService dbService, IUserSessionService userSessionService, IFinancialDataService financialDataService, INavigationService navigationService)
+        public UploadTransactionViewModel(ICloudDbService dbService, IUserSessionService userSessionService, IFinancialDataService financialDataService, INavigationService navigationService, IApiClient apiClient)
         {
+            _apiClient = apiClient;
             _navigationService = navigationService;
             _financialDataService = financialDataService;   
             _userSessionService = userSessionService;
@@ -315,7 +317,7 @@ namespace PersonalFinanceTracker.ViewModels
                 return;
             }
 
-            var statement = new Statement
+            var statement = new Common.Models.Statement
             {
                 UserId = _userSessionService.UserId,
                 StatementId = Guid.NewGuid().ToString(),
@@ -329,7 +331,8 @@ namespace PersonalFinanceTracker.ViewModels
 
             try
             {
-                await _dynamoDbService.SaveStatementAsync(statement);
+                //await _dynamoDbService.SaveStatementAsync(statement);
+                var result = await _apiClient.SubmitStatementAsync(statement);
             }
             catch (Exception ex)
             {
@@ -355,7 +358,7 @@ namespace PersonalFinanceTracker.ViewModels
                 return;
             }
 
-            var statement = new Statement
+            var statement = new Common.Models.Statement
             {
                 UserId = _userSessionService.UserId,
                 StatementId = Guid.NewGuid().ToString(),

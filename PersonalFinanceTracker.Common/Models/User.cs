@@ -5,21 +5,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace PersonalFinanceTracker.Common.Models
 {
     public class User
     {
-        [JsonProperty("id")] // Maps to Cosmos DB's "id" field
+        [JsonPropertyName("userId")] // Maps to Cosmos DB's "id" field
         public string UserId { get; set; }
 
-        [JsonProperty("username")]
+        [JsonPropertyName("username")]
         public string Username { get; set; }
 
-        [JsonProperty("email")]
+        [JsonPropertyName("email")]
         public string Email { get; set; }
 
-        [JsonProperty("password")]
+        [JsonPropertyName("password")]
         public string Password { get; set; }
     }
 }

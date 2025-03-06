@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using PersonalFinanceTracker.Common.Models;
 using PersonalFinanceTracker.Common.Interfaces;
-using PersonalFinanceTracker.AzureApi.Services;
+using System.Text.Json;
+using System.Diagnostics;
 
 namespace PersonalFinanceTracker.AzureApi.Controllers
 {
@@ -16,20 +17,16 @@ namespace PersonalFinanceTracker.AzureApi.Controllers
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _cosmosDbService = cosmosDbService ?? throw new ArgumentNullException(nameof(cosmosDbService));
-            _logger.LogInformation("UserController constructor called");
         }
 
         [HttpGet("{username}")]
-        public async Task<ActionResult<User>> GetUser(string username)
+        public async Task<ActionResult<User>> GetUserAsync(string username)
         {
-            _logger.LogInformation("GET request for username: {Username}", username);
             var user = await _cosmosDbService.GetUserByUsernameAsync(username);
             if (user == null)
             {
-                _logger.LogWarning("User not found: {Username}", username);
                 return NotFound();
             }
-            _logger.LogInformation("User retrieved: {UserId}", user.UserId);
             return Ok(user);
         }
 
@@ -39,7 +36,23 @@ namespace PersonalFinanceTracker.AzureApi.Controllers
             _logger.LogInformation("POST request to create user: {UserId}", user.UserId);
             if (!ModelState.IsValid) return BadRequest(ModelState);
             await _cosmosDbService.AddUserAsync(user);
-            return CreatedAtAction(nameof(GetUser), new { username = user.Username }, user);
+            return CreatedAtAction(nameof(GetUserAsync), new { username = user.Username }, user);
+        }
+
+        [HttpPost("signin")]
+        public async Task<IActionResult> SignIn([FromBody] SignInRequest request)
+        {
+            // Call Cosmos DB to authenticate—returns User if valid, null if not
+            var user = await _cosmosDbService.AuthenticateUserAsync(request.Username, request.Password);
+
+            // Check auth result. Null means bad creds, triggers 401 response.
+            if (user == null)
+            {
+                return Unauthorized("Invalid username or password");
+            }
+
+            // Success—return 200 OK with User object as JSON.
+            return Ok(user);
         }
     }
 }

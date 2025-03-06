@@ -67,13 +67,15 @@ namespace PersonalFinanceTracker
             containerRegistry.Register<INavigationService, NavigationService>();
             containerRegistry.Register<IPFTDialogService, PFTDialogService>();
             containerRegistry.Register<IUserSessionService, UserSessionService>();  
+            
 
-            // Service and AWS registrations
+            // Service and cloud provider registrations
             containerRegistry.Register<ICloudDbService, AwsDynamoDbService>();
             containerRegistry.RegisterInstance<IAmazonDynamoDB>(new AmazonDynamoDBClient());
             containerRegistry.RegisterSingleton(typeof(ILogger<>), typeof(Logger<>));
             containerRegistry.RegisterSingleton<IUserSessionService, UserSessionService>();
             containerRegistry.Register<IFinancialDataService, FinancialDataService>();
+            containerRegistry.RegisterSingleton<IApiClient, ApiClient>();
 
             // WindowFactory with deferred SignUpViewModel resolution
             containerRegistry.RegisterInstance<IWindowFactory>(
@@ -93,10 +95,12 @@ namespace PersonalFinanceTracker
             services.AddTransient<ICloudDbService, AwsDynamoDbService>();
             services.AddTransient<IFinancialDataService, FinancialDataService>();
             services.AddTransient<IUserSessionService, UserSessionService>();
+            
 
             // Shared single-instance services
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<IAmazonDynamoDB, AmazonDynamoDBClient>();
+            services.AddSingleton<IApiClient, ApiClient>();
 
             // Logging service
             services.AddLogging();

@@ -136,5 +136,20 @@ namespace PersonalFinanceTracker.Backend.Services
         {
             throw new NotImplementedException();
         }
+
+        public Task<User?> AuthenticateUserAsync(string username, string password)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AddStatementAsync(Statement statement)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<AuthResult> ICloudDbService.AuthenticateUserAsync(string username, string password)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

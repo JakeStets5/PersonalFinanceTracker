@@ -30,7 +30,7 @@ builder.Services.AddSingleton<CosmosClient>(sp =>
 });
 
 builder.Services.AddScoped<ICloudDbService, CosmosDbService>();
-builder.Services.AddScoped<UserController>();
+//builder.Services.AddScoped<UserController>();
 builder.Services.AddControllers()
     .AddControllersAsServices();
 
@@ -55,18 +55,6 @@ app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();
 
-//app.MapGet("/test", async context =>
-//{
-//    await context.Response.WriteAsync("Test endpoint works!");
-//});
-
-//app.MapGet("/api/user/{username}", async context =>
-//{
-//    await context.Response.WriteAsync($"Fallback hit for username: {context.Request.RouteValues["username"]}");
-//});
-//app.MapControllers(); // After fallback
-
-// Log registered controllers
 var controllerTypes = builder.Services
     .Where(s => s.ServiceType == typeof(UserController))
     .ToList();

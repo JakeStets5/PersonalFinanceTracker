@@ -13,10 +13,11 @@ using System.Windows.Threading;
 using System.Runtime.CompilerServices;
 using PersonalFinanceTracker.Backend.Interfaces;
 using PersonalFinanceTracker.Backend.Commands;
+using System.Diagnostics;
 
 namespace PersonalFinanceTracker.ViewModels
 {
-    public class SignInViewModel : INotifyPropertyChanged
+    public class SignInViewModel : BindableBase, INotifyPropertyChanged
     {
         private string _username = ""; 
         private string _usernameError = "";
@@ -26,6 +27,7 @@ namespace PersonalFinanceTracker.ViewModels
         private bool _isPasswordVisible = false;
         private bool _valid = true;
         private bool _isUpdating = false;
+        private bool _isSigningIn; // Prevent double calls
 
         private readonly IUserRepository _userRepository; // To help with user(model) and database interactions
 
@@ -34,6 +36,8 @@ namespace PersonalFinanceTracker.ViewModels
         private readonly IPFTDialogService _dialogService; // For any pop up dialog
 
         private readonly IUserSessionService _userSessionService; // To help with user session management
+
+        private readonly IApiClient _apiClient; // To help with API calls
 
         public bool IsPasswordPlaceholderVisible => string.IsNullOrEmpty(TempPassword); // To make the placeholder text for password vanish
         public char PasswordMaskChar => IsPasswordVisible ? '\0' : '●';
@@ -101,8 +105,10 @@ namespace PersonalFinanceTracker.ViewModels
             }
         }
 
-        public SignInViewModel(IUserRepository userRepository, INavigationService navigationService, IPFTDialogService dialogService, IUserSessionService userSessionService)
+        public SignInViewModel(IUserRepository userRepository, INavigationService navigationService, IPFTDialogService dialogService, IUserSessionService userSessionService, IApiClient apiClient)
         {
+            Debug.WriteLine("SignInViewModel constructor called");
+            _apiClient = apiClient;
             _userSessionService = userSessionService;
             _userRepository = userRepository;
             _navigationService = navigationService;
@@ -175,47 +181,45 @@ namespace PersonalFinanceTracker.ViewModels
         // Handles the sign in button click
         private async Task<bool> SignInAsync()
         {
-            _valid = true;
-
-            // Validate the username field
-            if (string.IsNullOrWhiteSpace(Username))
-                UsernameError = "Please enter a username.";
-            else
-                UsernameError = string.Empty;
-
-            _valid &= UsernameError == string.Empty;
-
-            // Validate the password field
-            if (string.IsNullOrWhiteSpace(Password))
-                PasswordError = "Please enter a password.";
-            else
-                PasswordError = string.Empty;
-
-            _valid &= PasswordError == string.Empty;
-
-            if (!_valid) return false; // Stop if basic validation fails
+            if (_isSigningIn) return false; // Block double calls
+            _isSigningIn = true;
+            ((RelayCommand)SignInCommand).RaiseCanExecuteChanged();
 
             try
             {
-                // Retrieve user from the repository
-                var user = await _userRepository.GetUserByUsernameAsync(Username);
+                Console.WriteLine($"SignInAsync started with Username: {Username}");
+                _valid = true;
+
+                // Validate the username field
+                if (string.IsNullOrWhiteSpace(Username))
+                    UsernameError = "Please enter a username.";
+                else
+                    UsernameError = string.Empty;
+
+                _valid &= UsernameError == string.Empty;
+
+                // Validate the password field
+                if (string.IsNullOrWhiteSpace(Password))
+                    PasswordError = "Please enter a password.";
+                else
+                    PasswordError = string.Empty;
+
+                _valid &= PasswordError == string.Empty;
+
+                if (!_valid) return false; // Stop if basic validation fails
+
+                //var user = await _userRepository.GetUserByUsernameAsync(Username); aws direct connection
+                var user = await _apiClient.SignInAsync(Username, Password);
 
                 if (user == null)
                 {
+                    Console.WriteLine("User is null - invalid credentials?");
                     UsernameError = "Username not found.";
                     return false;
                 }
-                else
-                {
-                    // Verify password (use hashing if applicable)
-                    if (!BCrypt.Net.BCrypt.Verify(Password, user.Password))  // Use hashing instead of plain text comparison
-                    {
-                        PasswordError = "Incorrect password.";
-                        return false;
-                    }
-                }
 
                 // Authentication successful
+                Console.WriteLine($"Calling SetUser with {user.UserId}");
                 _userSessionService.SetUser(user.UserId, user.Username);
                 _dialogService.ShowSuccessMessage("Sign In Successful!");
                 CloseAction?.Invoke();
@@ -225,6 +229,11 @@ namespace PersonalFinanceTracker.ViewModels
             {
                 Console.WriteLine($"Error during sign-in: {ex.Message}");
                 return false;
+            }
+            finally
+            {
+                ((RelayCommand)SignInCommand).RaiseCanExecuteChanged();
+                _isSigningIn = false;
             }
         }
 

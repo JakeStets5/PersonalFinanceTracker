@@ -303,7 +303,7 @@
                 <!-- Sign In Button -->
                 <RadioButton x:Name="SignInButton" Content="Sign In/Sign Up" Grid.Column="1" Margin="10" HorizontalContentAlignment="Center"
                              VerticalContentAlignment="Center" HorizontalAlignment="Center" 
-                             VerticalAlignment="Center" Click="SignInButton_Click">
+                             VerticalAlignment="Center" Command="{Binding SignInCommand}">
                     <RadioButton.Template>
                         <ControlTemplate TargetType="RadioButton">
                             <Border x:Name="Border" Padding="3" CornerRadius="4" Background="{TemplateBinding Background}">

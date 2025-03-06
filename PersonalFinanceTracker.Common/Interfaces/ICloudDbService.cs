@@ -13,5 +13,7 @@ namespace PersonalFinanceTracker.Common.Interfaces
         Task<User?> GetUserByUsernameAsync(string userId);
         Task SaveStatementAsync(Statement statement);
         Task<List<Statement>> GetStatementsByUserIdAsync(string userId);
+        Task<AuthResult> AuthenticateUserAsync(string username, string password);
+        public Task AddStatementAsync(Statement statement);
     }
 }

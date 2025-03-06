@@ -4,23 +4,33 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2.DataModel;
+using System.Text.Json.Serialization;
 
 namespace PersonalFinanceTracker.Common.Models
 {
-    [DynamoDBTable("Statement")]
     public class Statement
     {
-        [DynamoDBHashKey]
-        public string UserId { get; set; }  // Partition key
+        [JsonPropertyName("userId")]
+        public string UserId { get; set; }
 
-        [DynamoDBRangeKey]
-        public string StatementId { get; set; }  // Sort key, could be a GUID
+        [JsonPropertyName("id")]
+        public string StatementId { get; set; }
 
-        public string Type { get; set; } // "Income" or "Expense"
+        [JsonPropertyName("type")]
+        public string Type { get; set; }
+        [JsonPropertyName("amount")]
         public decimal Amount { get; set; }
+
+        [JsonPropertyName("Source")]
         public string Source { get; set; }
+
+        [JsonPropertyName("frequency")]
         public string Frequency { get; set; }
+
+        [JsonPropertyName("date")]
         public DateTime Date { get; set; }
+
+        [JsonPropertyName("paymentMethod")]
         public string PaymentMethod { get; set; }
     }
 }

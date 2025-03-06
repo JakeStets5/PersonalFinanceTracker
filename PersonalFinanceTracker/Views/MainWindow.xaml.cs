@@ -27,11 +27,13 @@ namespace PersonalFinanceTracker.Views
         private readonly INavigationService _navigationService;
         private readonly IPFTDialogService _dialogService;
         private readonly IUserSessionService _userSessionService;
+        private readonly IApiClient _apiClient;
 
-        public MainWindow(MainWindowViewModel mainWindowViewModel, IUserRepository userRepository, INavigationService navigationService, IPFTDialogService dialogService, IUserSessionService userSessionService)
+        public MainWindow(MainWindowViewModel mainWindowViewModel, IUserRepository userRepository, INavigationService navigationService, IPFTDialogService dialogService, IUserSessionService userSessionService, IApiClient apiClient)
         {
             try
             {
+                _apiClient = apiClient;
                 _userSessionService = userSessionService;
                 _userRepository = userRepository;
                 _navigationService = navigationService;
@@ -74,13 +76,6 @@ namespace PersonalFinanceTracker.Views
                 Underline.BeginAnimation(Canvas.LeftProperty, positionAnimation);
                 Underline.BeginAnimation(FrameworkElement.WidthProperty, widthAnimation);
             }
-        }
-
-        private void SignInButton_Click(object sender, RoutedEventArgs e)
-        {
-            var signInViewModel = new SignInViewModel(_userRepository, _navigationService, _dialogService, _userSessionService);
-            SignInWindow signInWindow = new SignInWindow(signInViewModel);
-            signInWindow.ShowDialog();
         }
 
         protected override void OnContentRendered(EventArgs e)

@@ -3,6 +3,9 @@ using PersonalFinanceTracker.Common.Models;
 using PersonalFinanceTracker.Common.Interfaces;
 using Microsoft.Extensions.Logging; // For ILogger
 using User = PersonalFinanceTracker.Common.Models.User;
+using BCrypt.Net;
+using System.Text.Json;
+using System.Diagnostics;
 
 namespace PersonalFinanceTracker.AzureApi.Services
 {
@@ -17,16 +20,11 @@ namespace PersonalFinanceTracker.AzureApi.Services
         {
             _cosmosClient = cosmosClient ?? throw new ArgumentNullException(nameof(cosmosClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _logger.LogInformation("CosmosDbService constructor called");
             var cosmosConfig = config.GetSection("CosmosDb") ?? throw new ArgumentNullException(nameof(config));
             var dbName = cosmosConfig["DatabaseName"];
-            if (string.IsNullOrEmpty(dbName)) throw new ArgumentException("DatabaseName is missing");
-            if (string.IsNullOrEmpty(cosmosConfig["UserContainerName"])) throw new ArgumentException("UserContainerName is missing");
-            if (string.IsNullOrEmpty(cosmosConfig["StatementContainerName"])) throw new ArgumentException("StatementContainerName is missing");
             var database = _cosmosClient.GetDatabase(dbName);
             _userContainer = database.GetContainer(cosmosConfig["UserContainerName"]);
             _statementContainer = database.GetContainer(cosmosConfig["StatementContainerName"]);
-            _logger.LogInformation("CosmosDbService initialized with database: {DatabaseName}", dbName);
         }
 
         public async Task AddUserAsync(User user)
@@ -42,6 +40,12 @@ namespace PersonalFinanceTracker.AzureApi.Services
                 _logger.LogError(ex, "Failed to add user: {UserId}", user.UserId);
                 throw;
             }
+        }
+
+        public async Task AddStatementAsync(Statement statement)
+        {
+            await _statementContainer.UpsertItemAsync(statement, new PartitionKey(statement.UserId));
+            _logger.LogInformation("Statement added for user: {UserId}", statement.UserId);
         }
 
         public async Task<List<Statement>> GetStatementsByUserIdAsync(string userId)
@@ -67,10 +71,8 @@ namespace PersonalFinanceTracker.AzureApi.Services
 
         public async Task<User?> GetUserByUsernameAsync(string username)
         {
-            _logger.LogInformation("Fetching user with Username: {Username}", username); // Note: Using userId as username here
             var query = new QueryDefinition("SELECT * FROM c WHERE c.Username = @username")
                 .WithParameter("@username", username);
-            _logger.LogDebug("Executing query: {QueryText}", query.QueryText);
             try
             {
                 var iterator = _userContainer.GetItemQueryIterator<User>(query);
@@ -106,6 +108,27 @@ namespace PersonalFinanceTracker.AzureApi.Services
                 _logger.LogError(ex, "Failed to save statement: {StatementId}", statement.StatementId);
                 throw;
             }
+        }
+
+        public async Task<AuthResult> AuthenticateUserAsync(string username, string password)
+        {
+            // Fetch user from Cosmos DB—null if not found.
+            var user = await GetUserByUsernameAsync(username);
+
+            // No user—return result with UserFound false.
+            if (user == null)
+            {
+                return new AuthResult { UserFound = false, PasswordMatch = false };
+            }
+
+            // User found—check password match.
+            var passwordMatch = BCrypt.Net.BCrypt.Verify(password, user.Password);
+            return new AuthResult
+            {
+                User = passwordMatch ? user : null,
+                UserFound = true,
+                PasswordMatch = passwordMatch
+            };
         }
     }
 }
