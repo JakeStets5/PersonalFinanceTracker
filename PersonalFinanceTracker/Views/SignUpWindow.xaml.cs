@@ -1,4 +1,4 @@
-﻿using PersonalFinanceTracker.Backend.Models;
+﻿using PersonalFinanceTracker.Common.Models;
 using PersonalFinanceTracker.Backend.Repositories;
 using System;
 using System.Collections.Generic;

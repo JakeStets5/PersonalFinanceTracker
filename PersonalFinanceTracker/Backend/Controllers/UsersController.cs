@@ -1,4 +1,4 @@
-﻿using PersonalFinanceTracker.Backend.Models;
+﻿using PersonalFinanceTracker.Common.Models;
 using PersonalFinanceTracker.Backend.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System;

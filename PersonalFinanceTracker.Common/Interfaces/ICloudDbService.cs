@@ -10,7 +10,7 @@ namespace PersonalFinanceTracker.Common.Interfaces
     public interface ICloudDbService
     {
         Task AddUserAsync(User user);
-        Task<User?> GetUserByIdAsync(string userId);
+        Task<User?> GetUserByUsernameAsync(string userId);
         Task SaveStatementAsync(Statement statement);
         Task<List<Statement>> GetStatementsByUserIdAsync(string userId);
     }

@@ -60,6 +60,7 @@
     <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.47.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
     <PackageReference Include="Microsoft.NETCore.App" Version="2.1.30" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
@@ -79,7 +80,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="PersonalFinanceTracker.Common\PersonalFinanceTracker.Common.csproj" />
+    <ProjectReference Include="..\PersonalFinanceTracker.Common\PersonalFinanceTracker.Common.csproj" />
   </ItemGroup>
 
 </Project>

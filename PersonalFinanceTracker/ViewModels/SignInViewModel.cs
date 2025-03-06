@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using PersonalFinanceTracker.Views;
-using PersonalFinanceTracker.Backend.Models;
+using PersonalFinanceTracker.Common.Models;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;

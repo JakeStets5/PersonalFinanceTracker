@@ -1,5 +1,5 @@
 ﻿using PersonalFinanceTracker.Backend.Interfaces;
-using PersonalFinanceTracker.Backend.Models;
+using PersonalFinanceTracker.Common.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

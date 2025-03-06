@@ -131,5 +131,10 @@ namespace PersonalFinanceTracker.Backend.Services
                 return new List<Statement>(); // Return empty list on failure
             }
         }
+
+        public Task<User?> GetUserByUsernameAsync(string userId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

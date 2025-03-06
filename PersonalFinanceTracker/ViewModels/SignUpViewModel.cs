@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using PersonalFinanceTracker.Backend.Models;
+using PersonalFinanceTracker.Common.Models;
 using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Threading;

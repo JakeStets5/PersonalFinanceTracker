@@ -4,22 +4,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace PersonalFinanceTracker.Common.Models
 {
-    [DynamoDBTable("Users")]
     public class User
     {
-        [DynamoDBHashKey] // Partition key
+        [JsonProperty("id")] // Maps to Cosmos DB's "id" field
         public string UserId { get; set; }
 
-        [DynamoDBProperty]
+        [JsonProperty("username")]
         public string Username { get; set; }
 
-        [DynamoDBProperty]
+        [JsonProperty("email")]
         public string Email { get; set; }
 
-        [DynamoDBProperty]
+        [JsonProperty("password")]
         public string Password { get; set; }
     }
 }

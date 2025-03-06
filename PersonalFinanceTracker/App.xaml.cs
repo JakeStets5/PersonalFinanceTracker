@@ -5,6 +5,7 @@ using PersonalFinanceTracker.Views;
 using Serilog;
 using System.Windows;
 using Amazon.DynamoDBv2;
+using PersonalFinanceTracker.Common.Interfaces;
 using PersonalFinanceTracker.Backend.Interfaces;
 using PersonalFinanceTracker.Backend.Factories;
 using PersonalFinanceTracker.ViewModels;

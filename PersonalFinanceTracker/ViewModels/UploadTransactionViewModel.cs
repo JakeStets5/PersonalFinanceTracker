@@ -1,6 +1,8 @@
 ﻿using PersonalFinanceTracker.Backend.Commands;
 using PersonalFinanceTracker.Backend.Interfaces;
-using PersonalFinanceTracker.Backend.Models;
+using PersonalFinanceTracker.Common.Interfaces;
+using PersonalFinanceTracker.Common.Models;
+//using PersonalFinanceTracker.Backend.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

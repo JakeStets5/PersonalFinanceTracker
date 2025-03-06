@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35521.163
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersonalFinanceTracker", "PersonalFinanceTracker.csproj", "{1B8EEDDE-793A-4FD0-ABD4-639D2CE3CA45}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersonalFinanceTracker", "PersonalFinanceTracker/PersonalFinanceTracker.csproj", "{1B8EEDDE-793A-4FD0-ABD4-639D2CE3CA45}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersonalFinanceTracker.Common", "PersonalFinanceTracker.Common\PersonalFinanceTracker.Common.csproj", "{6979C4BE-883F-440C-92BB-B4B3B7596922}"
 EndProject

@@ -1,0 +1,21 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "x",
+      "Microsoft.AspNetCore": "x"
+    }
+  },
+  "AllowedHosts": "*",
+  "AWS": {
+    "Region": "x",
+    "AccessKey": "x",
+    "SecretKey": "x"
+  },
+  "CosmosDb": {
+    "Endpoint": "x",
+    "Key": "x",
+    "DatabaseName": "x",
+    "UserContainerName": "x",
+    "StatementContainerName": "x"
+  }
+}

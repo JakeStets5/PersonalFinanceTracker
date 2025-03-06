@@ -1,9 +1,10 @@
-﻿using PersonalFinanceTracker.Backend.Models;
+﻿using PersonalFinanceTracker.Common.Models;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2.DataModel;
 using PersonalFinanceTracker.Backend.Interfaces;
+using PersonalFinanceTracker.Common.Interfaces;
 
 namespace PersonalFinanceTracker.Backend.Repositories
 {
