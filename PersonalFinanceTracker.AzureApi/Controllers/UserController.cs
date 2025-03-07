@@ -42,17 +42,26 @@ namespace PersonalFinanceTracker.AzureApi.Controllers
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn([FromBody] SignInRequest request)
         {
-            // Call Cosmos DB to authenticate—returns User if valid, null if not
-            var user = await _cosmosDbService.AuthenticateUserAsync(request.Username, request.Password);
+            // Authenticate—get detailed result
+            var authResult = await _cosmosDbService.AuthenticateUserAsync(request.Username, request.Password);
 
-            // Check auth result. Null means bad creds, triggers 401 response.
-            if (user == null)
+            // No user found—specific 404 response
+            if (!authResult.UserFound)
             {
-                return Unauthorized("Invalid username or password");
+                _logger.LogWarning("No user found for username: {Username}", request.Username);
+                return NotFound("Username not found");
             }
 
-            // Success—return 200 OK with User object as JSON.
-            return Ok(user);
+            // User found, wrong password—401 with context
+            if (!authResult.PasswordMatch)
+            {
+                _logger.LogWarning("Password incorrect for username: {Username}", request.Username);
+                return Unauthorized("Username or password incorrect");
+            }
+
+            // Success—return User with 200 OK.
+            _logger.LogInformation("Sign-in successful for user: {UserId}", authResult.User.UserId);
+            return Ok(authResult.User);
         }
     }
 }

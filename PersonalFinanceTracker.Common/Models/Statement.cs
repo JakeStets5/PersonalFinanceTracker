@@ -10,10 +10,12 @@ namespace PersonalFinanceTracker.Common.Models
 {
     public class Statement
     {
+        [JsonPropertyName("id")]
+        public string Id { get; set; }
         [JsonPropertyName("userId")]
         public string UserId { get; set; }
 
-        [JsonPropertyName("id")]
+        [JsonPropertyName("statementId")]
         public string StatementId { get; set; }
 
         [JsonPropertyName("type")]
@@ -21,7 +23,7 @@ namespace PersonalFinanceTracker.Common.Models
         [JsonPropertyName("amount")]
         public decimal Amount { get; set; }
 
-        [JsonPropertyName("Source")]
+        [JsonPropertyName("source")]
         public string Source { get; set; }
 
         [JsonPropertyName("frequency")]

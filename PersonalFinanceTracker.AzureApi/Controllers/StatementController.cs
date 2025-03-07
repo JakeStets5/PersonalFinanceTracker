@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Amazon.Auth.AccessControlPolicy;
+using Microsoft.AspNetCore.Mvc;
 using PersonalFinanceTracker.Common.Interfaces;
 using PersonalFinanceTracker.Common.Models;
 
@@ -9,26 +10,53 @@ namespace PersonalFinanceTracker.AzureApi.Controllers
     public class StatementController : ControllerBase
     {
         private readonly ICloudDbService _cosmosDbService;
+        private readonly ILogger<StatementController> _logger;
 
-        public StatementController(ICloudDbService cloudDbService)
+        public StatementController(ICloudDbService cloudDbService, ILogger<StatementController> logger)
         {
             _cosmosDbService = cloudDbService;
+            _logger = logger;
         }
 
-        [HttpGet("{statementId}/{userId}")]
-        public async Task<ActionResult<Statement>> GetStatement(string statementId, string userId)
+        [HttpGet]
+        public async Task<IActionResult> GetStatements([FromQuery] string userId, [FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null)
         {
-            var statement = await _cosmosDbService.GetStatementsByUserIdAsync(userId);
-            if (statement == null) return NotFound();
-            return Ok(statement);
+            if(string.IsNullOrEmpty(userId))
+            {
+                return BadRequest("UserId is required");
+            }
+
+            var statements = await _cosmosDbService.GetStatementsByUserIdAsync(userId, startDate, endDate);
+            if (statements == null || !statements.Any())
+            {
+                _logger.LogWarning("No statements found for userId: {UserId}", userId);
+                return NotFound();
+            }
+
+            _logger.LogInformation("Retrieved {Count} statements for userId: {UserId}", statements.Count(), userId);
+            return Ok(statements);
         }
+
 
         [HttpPost]
-        public async Task<IActionResult> CreateStatement([FromBody] Statement statement)
+        public async Task<IActionResult> SubmitStatement([FromBody] Common.Models.Statement statement)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            await _cosmosDbService.SaveStatementAsync(statement);
-            return CreatedAtAction(nameof(GetStatement), new { statementId = statement.StatementId, userId = statement.UserId }, statement);
+            if(statement == null || string.IsNullOrEmpty(statement.UserId) || string.IsNullOrEmpty(statement.StatementId))
+            {
+                return BadRequest("Statement must include UserId and StatementId");
+            }
+
+            try
+            {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+                await _cosmosDbService.SaveStatementAsync(statement);
+                return Ok(statement);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Failed to submit statement for userId: {UserId}", statement.UserId);
+                return StatusCode(500, "Failed to submit statement");
+            }
         }
     }
 }

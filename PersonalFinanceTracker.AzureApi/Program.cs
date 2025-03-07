@@ -3,6 +3,7 @@ using PersonalFinanceTracker.Common.Interfaces;
 using PersonalFinanceTracker.AzureApi.Services;
 using Microsoft.Extensions.Logging;
 using PersonalFinanceTracker.AzureApi.Controllers;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,7 @@ builder.Services.AddSingleton<CosmosClient>(sp =>
 });
 
 builder.Services.AddScoped<ICloudDbService, CosmosDbService>();
+
 //builder.Services.AddScoped<UserController>();
 builder.Services.AddControllers()
     .AddControllersAsServices();
@@ -41,6 +43,11 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new() { Title = "PersonalFinanceTracker API", Version = "v1" });
 });
 
+// Log registered controllers
+var controllerTypes = typeof(Program).Assembly.GetTypes()
+    .Where(t => typeof(ControllerBase).IsAssignableFrom(t) && t.Name.EndsWith("Controller"));
+Console.WriteLine($"Registered {controllerTypes.Count()} controller types: {string.Join(", ", controllerTypes.Select(t => t.Name))}");
+
 var app = builder.Build();
 app.Logger.LogInformation("API starting up");
 
@@ -51,13 +58,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "PersonalFinanceTracker API v1"));
 }
 
+//var controllerTypes = builder.Services
+//    .Where(s => s.ServiceType == typeof(UserController))
+//    .ToList();
+//app.Logger.LogInformation("Registered {Count} controller types", controllerTypes.Count);
+
 app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();
-
-var controllerTypes = builder.Services
-    .Where(s => s.ServiceType == typeof(UserController))
-    .ToList();
-app.Logger.LogInformation("Registered {Count} controller types", controllerTypes.Count);
 
 app.Run();

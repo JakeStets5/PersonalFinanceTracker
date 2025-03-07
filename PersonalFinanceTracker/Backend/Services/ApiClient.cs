@@ -38,7 +38,7 @@ namespace PersonalFinanceTracker.Backend.Services
             }
         }
 
-        public async Task<User?> SignInAsync(string username, string password)
+        public async Task<(User? User, string? Error)> SignInAsync(string username, string password)
         {
             try
             {
@@ -51,7 +51,11 @@ namespace PersonalFinanceTracker.Backend.Services
                 // Check if response is successful (200-299)—non-success returns null for invalid creds
                 if (!response.IsSuccessStatusCode)
                 {
-                    return null;
+                    var status = response.StatusCode;
+                    var error = status == System.Net.HttpStatusCode.NotFound
+                        ? "Username not found"
+                        : "Username or password incorrect";
+                    return (null, error);
                 }
 
                 // Read raw JSON response
@@ -59,37 +63,55 @@ namespace PersonalFinanceTracker.Backend.Services
 
                 // Deserialize JSON into User object. Null if JSON mismatches User model
                 var user = JsonSerializer.Deserialize<User>(content);
-                return user;
+                return (user, null);
             }
             catch (ObjectDisposedException ex)
             {
                 Debug.WriteLine($"Disposed error: {ex}");
-                return null;
+                return (null, ex.ToString());
             }
             catch (HttpRequestException ex)
             {
                 Debug.WriteLine($"HTTP error: {ex.Message}, Status: {ex.StatusCode}");
                 var errorContent = ex.InnerException?.Message ?? "No content";
                 Debug.WriteLine($"Error content: {errorContent}");
-                return null;
+                return (null, ex.ToString());
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Unexpected error: {ex}");
-                return null;
+                return (null, ex.ToString());
             }
         }
 
         public async Task<Statement?> SubmitStatementAsync(Statement statement)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/statements", statement);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Statement>();
+            var response = await _httpClient.PostAsJsonAsync("api/statement", statement);
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<Statement>(content);
         }
 
-        public async Task<List<Statement?>> GetStatementsAsync(string userId)
+        public async Task<IEnumerable<Statement?>> GetStatementsAsync(string userId, DateTime? startDate = null, DateTime? endDate = null)
         {
-            return await _httpClient.GetFromJsonAsync<List<Statement>>($"api/statements/{userId}");
+            var query = $"api/statement?userId={userId}";
+            if (startDate.HasValue)
+                query += $"&startDate={startDate.Value:yyyy-MM-dd}";
+            if (endDate.HasValue)
+                query += $"&endDate={endDate.Value:yyyy-MM-dd}";
+
+            // Fetch statements for userId from API. Expects 200 OK with list
+            var response = await _httpClient.GetAsync(query);
+            if(!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<IEnumerable<Statement>>(content);
         }
+
     }
 }

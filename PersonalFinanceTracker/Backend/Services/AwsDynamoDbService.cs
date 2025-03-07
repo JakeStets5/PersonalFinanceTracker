@@ -151,5 +151,15 @@ namespace PersonalFinanceTracker.Backend.Services
         {
             throw new NotImplementedException();
         }
+
+        Task<IEnumerable<Statement>> ICloudDbService.GetStatementsByUserIdAsync(string userId, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<Statement>> GetStatementsByUserIdAsync(string userId, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

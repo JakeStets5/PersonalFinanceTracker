@@ -42,23 +42,40 @@ namespace PersonalFinanceTracker.AzureApi.Services
             }
         }
 
-        public async Task AddStatementAsync(Statement statement)
-        {
-            await _statementContainer.UpsertItemAsync(statement, new PartitionKey(statement.UserId));
-            _logger.LogInformation("Statement added for user: {UserId}", statement.UserId);
-        }
-
-        public async Task<List<Statement>> GetStatementsByUserIdAsync(string userId)
+        public async Task<IEnumerable<Statement>> GetStatementsByUserIdAsync(string userId, DateTime? startDate = null, DateTime? endDate = null)
         {
             _logger.LogInformation("Fetching statements for UserId: {UserId}", userId);
-            var query = new QueryDefinition("SELECT * FROM c WHERE c.UserId = @userId")
-                .WithParameter("@userId", userId);
-            _logger.LogDebug("Executing query: {QueryText}", query.QueryText);
+            var queryText = "SELECT * FROM c WHERE c.UserId = @userId";
+            var parameters = new Dictionary<string, object> { { "@userId", userId } };
+
+            // Add date filters if provided—Cosmos uses ISO 8601 strings.
+            if (startDate.HasValue)
+            {
+                queryText += " AND c.Date >= @startDate";
+                parameters.Add("@startDate", startDate.Value.ToString("yyyy-MM-ddTHH:mm:ssZ"));
+            }
+            if (endDate.HasValue)
+            {
+                queryText += " AND c.Date <= @endDate";
+                parameters.Add("@endDate", endDate.Value.ToString("yyyy-MM-ddTHH:mm:ssZ"));
+            }
+
+            var query = new QueryDefinition(queryText);
+            foreach (var param in parameters)
+            {
+                query = query.WithParameter(param.Key, param.Value);
+            }
+            var iterator = _statementContainer.GetItemQueryIterator<Statement>(query);
+            var statements = new List<Statement>();
+
             try
             {
-                var iterator = _statementContainer.GetItemQueryIterator<Statement>(query);
-                var results = await iterator.ReadNextAsync();
-                var statements = results.ToList();
+                
+                while (iterator.HasMoreResults)
+                {
+                    var response = await iterator.ReadNextAsync();
+                    statements.AddRange(response);
+                }
                 _logger.LogInformation("Found {Count} statements for UserId: {UserId}", statements.Count, userId);
                 return statements;
             }

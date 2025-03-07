@@ -181,7 +181,7 @@ namespace PersonalFinanceTracker.ViewModels
                 {
                     _startDate = value;
                     OnPropertyChanged(nameof(StartDate));
-                    LoadFinancialDataAsync(); // Refresh chart when date changes
+                    LoadStatementsAsync(); // Refresh chart when date changes
                 }
             }
         }
@@ -194,7 +194,7 @@ namespace PersonalFinanceTracker.ViewModels
             {
                 _endDate = value;
                 OnPropertyChanged(nameof(EndDate));
-                LoadFinancialDataAsync(); // Refresh chart when date changes
+                LoadStatementsAsync(); // Refresh chart when date changes
             }
         }
 
@@ -296,7 +296,7 @@ namespace PersonalFinanceTracker.ViewModels
         {
             IsUserSignedIn = true;
             CurrentUser = user;
-            await LoadFinancialDataAsync();
+            await LoadStatementsAsync();
         }
         public void Dispose()
         {
@@ -306,7 +306,7 @@ namespace PersonalFinanceTracker.ViewModels
 
         private async void Refresh()
         {
-            await LoadFinancialDataAsync();
+            await LoadStatementsAsync();
         }
 
         private async void AddIncomeStatement()
@@ -333,6 +333,10 @@ namespace PersonalFinanceTracker.ViewModels
             {
                 //await _dynamoDbService.SaveStatementAsync(statement);
                 var result = await _apiClient.SubmitStatementAsync(statement);
+                if (result != null)
+                {
+                    await LoadStatementsAsync();
+                }
             }
             catch (Exception ex)
             {
@@ -405,7 +409,7 @@ namespace PersonalFinanceTracker.ViewModels
             return series;
         }
 
-        private async Task LoadFinancialDataAsync()
+        private async Task LoadStatementsAsync()
         {
             if (!_userSessionService.IsUserLoggedIn)
             {
@@ -414,12 +418,32 @@ namespace PersonalFinanceTracker.ViewModels
             }
 
             var userId = _userSessionService.UserId;
-            var breakdown = await _financialDataService.GetFinancialBreakdownAsync(userId, StartDate, EndDate);
 
-            IncomeSeries = GenerateSeriesCollection(breakdown.IncomeByCategory);
+            var statements = await _apiClient.GetStatementsAsync(userId, StartDate, EndDate);
+            if (statements == null || !statements.Any())
+            {
+                IncomeSeries.Clear();
+                ExpenseSeries.Clear();
+                return;
+            }
+
+            // Filter and group income statements by Source + sum Amounts
+            var incomeData = statements
+                .Where(s => s.Type == "Income")
+                .GroupBy(s => s.Source)
+                .ToDictionary(g => g.Key, g => g.Sum(s => s.Amount));
+
+            // Filter and group expense statements by Source + sum Amounts
+            var expenseData = statements
+                .Where(s => s.Type == "Expense")
+                .GroupBy(s => s.Source)
+                .ToDictionary(g => g.Key, g => g.Sum(s => s.Amount));
+
+            // Update pie charts—generate series for each.
+            IncomeSeries = GenerateSeriesCollection(incomeData);
             OnPropertyChanged(nameof(IncomeSeries));
 
-            ExpenseSeries = GenerateSeriesCollection(breakdown.ExpensesByCategory);
+            ExpenseSeries = GenerateSeriesCollection(expenseData);
             OnPropertyChanged(nameof(ExpenseSeries));
 
             IsUserSignedIn = true;

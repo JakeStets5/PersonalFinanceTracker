@@ -209,8 +209,8 @@ namespace PersonalFinanceTracker.ViewModels
                 if (!_valid) return false; // Stop if basic validation fails
 
                 //var user = await _userRepository.GetUserByUsernameAsync(Username); aws direct connection
-                var user = await _apiClient.SignInAsync(Username, Password);
-
+                //var user = await _apiClient.SignInAsync(Username, Password);
+                var (user, error) = await _apiClient.SignInAsync(Username, Password);
                 if (user == null)
                 {
                     Console.WriteLine("User is null - invalid credentials?");
