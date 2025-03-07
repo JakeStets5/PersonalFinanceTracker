@@ -161,5 +161,10 @@ namespace PersonalFinanceTracker.Backend.Services
         {
             throw new NotImplementedException();
         }
+
+        public Task SaveRawStatementAsync(string json)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

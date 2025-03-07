@@ -22,6 +22,7 @@ using Unity;
 using System.Windows.Media;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Amazon.Auth.AccessControlPolicy;
+using System.Text.Json;
 
 namespace PersonalFinanceTracker.ViewModels
 {
@@ -331,7 +332,6 @@ namespace PersonalFinanceTracker.ViewModels
 
             try
             {
-                //await _dynamoDbService.SaveStatementAsync(statement);
                 var result = await _apiClient.SubmitStatementAsync(statement);
                 if (result != null)
                 {
@@ -376,7 +376,11 @@ namespace PersonalFinanceTracker.ViewModels
 
             try
             {
-                await _dynamoDbService.SaveStatementAsync(statement);
+                var result = await _apiClient.SubmitStatementAsync(statement);
+                if (result != null)
+                {
+                    await LoadStatementsAsync();
+                }
             }
             catch (Exception ex)
             {
@@ -420,8 +424,10 @@ namespace PersonalFinanceTracker.ViewModels
             var userId = _userSessionService.UserId;
 
             var statements = await _apiClient.GetStatementsAsync(userId, StartDate, EndDate);
+            Debug.WriteLine("Client statements: {Statements}", JsonSerializer.Serialize(statements));
             if (statements == null || !statements.Any())
             {
+                Debug.WriteLine("No statements to process.");
                 IncomeSeries.Clear();
                 ExpenseSeries.Clear();
                 return;

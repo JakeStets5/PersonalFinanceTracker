@@ -9,6 +9,7 @@ using PersonalFinanceTracker.Common.Models;
 using PersonalFinanceTracker.Backend.Interfaces;
 using System.Text.Json;
 using System.Diagnostics;
+using Newtonsoft.Json;
 
 namespace PersonalFinanceTracker.Backend.Services
 {
@@ -42,13 +43,13 @@ namespace PersonalFinanceTracker.Backend.Services
         {
             try
             {
-                // Create anonymous object for POST body—matches SignInRequest in API
+                // Create anonymous object for POST body
                 var request = new { Username = username, Password = password };
 
-                // Send POST to API sign-in endpoint—expects 200 OK with User JSON or 401 Unauthorized
+                // Send POST to API sign-in endpoint
                 var response = await _httpClient.PostAsJsonAsync("api/user/signin", request);
 
-                // Check if response is successful (200-299)—non-success returns null for invalid creds
+                // Check if response is successful. Non-success returns null for invalid creds
                 if (!response.IsSuccessStatusCode)
                 {
                     var status = response.StatusCode;
@@ -62,7 +63,7 @@ namespace PersonalFinanceTracker.Backend.Services
                 var content = await response.Content.ReadAsStringAsync();
 
                 // Deserialize JSON into User object. Null if JSON mismatches User model
-                var user = JsonSerializer.Deserialize<User>(content);
+                var user = JsonConvert.DeserializeObject<User>(content);
                 return (user, null);
             }
             catch (ObjectDisposedException ex)
@@ -92,7 +93,7 @@ namespace PersonalFinanceTracker.Backend.Services
                 return null;
             }
             var content = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<Statement>(content);
+            return JsonConvert.DeserializeObject<Statement>(content);
         }
 
         public async Task<IEnumerable<Statement?>> GetStatementsAsync(string userId, DateTime? startDate = null, DateTime? endDate = null)
@@ -110,8 +111,7 @@ namespace PersonalFinanceTracker.Backend.Services
                 return null;
             }
             var content = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<IEnumerable<Statement>>(content);
+            return JsonConvert.DeserializeObject<IEnumerable<Statement>>(content);
         }
-
     }
 }

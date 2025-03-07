@@ -5,34 +5,41 @@ using System.Text;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2.DataModel;
 using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace PersonalFinanceTracker.Common.Models
 {
     public class Statement
     {
-        [JsonPropertyName("id")]
-        public string Id { get; set; }
-        [JsonPropertyName("userId")]
+        [JsonProperty("id")] // Cosmos expects "id" in JSON. Mapping to statementId
+        public string Id
+        {
+            get => StatementId;
+            set => StatementId = value;
+        }
+
+        [JsonProperty("UserId")]
         public string UserId { get; set; }
 
-        [JsonPropertyName("statementId")]
+        [JsonProperty("StatementId")]
         public string StatementId { get; set; }
 
-        [JsonPropertyName("type")]
+        [JsonProperty("Type")]
         public string Type { get; set; }
-        [JsonPropertyName("amount")]
+
+        [JsonProperty("Amount")]
         public decimal Amount { get; set; }
 
-        [JsonPropertyName("source")]
+        [JsonProperty("Source")]
         public string Source { get; set; }
 
-        [JsonPropertyName("frequency")]
+        [JsonProperty("Frequency")]
         public string Frequency { get; set; }
 
-        [JsonPropertyName("date")]
+        [JsonProperty("Date")]
         public DateTime Date { get; set; }
 
-        [JsonPropertyName("paymentMethod")]
+        [JsonProperty("PaymentMethod")]
         public string PaymentMethod { get; set; }
     }
 }

@@ -14,5 +14,6 @@ namespace PersonalFinanceTracker.Common.Interfaces
         Task SaveStatementAsync(Statement statement);
         public Task<IEnumerable<Statement>> GetStatementsByUserIdAsync(string userId, DateTime? startDate = null, DateTime? endDate = null);
         Task<AuthResult> AuthenticateUserAsync(string username, string password);
+        public Task SaveRawStatementAsync(string json); // for testing
     }
 }

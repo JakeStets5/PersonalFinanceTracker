@@ -6,6 +6,7 @@ using User = PersonalFinanceTracker.Common.Models.User;
 using BCrypt.Net;
 using System.Text.Json;
 using System.Diagnostics;
+using System.Text;
 
 namespace PersonalFinanceTracker.AzureApi.Services
 {
@@ -74,6 +75,7 @@ namespace PersonalFinanceTracker.AzureApi.Services
                 while (iterator.HasMoreResults)
                 {
                     var response = await iterator.ReadNextAsync();
+                    _logger.LogInformation("Retrieved batch: {Batch}", JsonSerializer.Serialize(response));
                     statements.AddRange(response);
                 }
                 _logger.LogInformation("Found {Count} statements for UserId: {UserId}", statements.Count, userId);
@@ -114,15 +116,52 @@ namespace PersonalFinanceTracker.AzureApi.Services
 
         public async Task SaveStatementAsync(Statement statement)
         {
-            _logger.LogInformation("Saving statement with StatementId: {StatementId} for UserId: {UserId}", statement.StatementId, statement.UserId);
             try
             {
-                await _statementContainer.UpsertItemAsync(statement, new PartitionKey(statement.UserId));
-                _logger.LogInformation("Statement saved successfully: {StatementId}", statement.StatementId);
+                if (string.IsNullOrEmpty(statement.UserId) || string.IsNullOrEmpty(statement.StatementId))
+                {
+                    _logger.LogWarning("Invalid input: UserId: {UserId}, StatementId: {StatementId}",
+                        statement.UserId, statement.StatementId);
+                    throw new ArgumentException("UserId and StatementId must not be null or empty");
+                }
+
+                var partitionKey = new PartitionKeyBuilder()
+                    .Add("1")
+                    .Add("s4")
+                    .Build();
+
+                var json = JsonSerializer.Serialize(statement);
+                _logger.LogInformation("Saving statement: {Json}, PartitionKey: [{UserId}, {StatementId}]",
+                    json, statement.UserId, statement.StatementId);
+
+                await _statementContainer.UpsertItemAsync(statement, partitionKey);
+                _logger.LogInformation("Statement upserted: {StatementId} for UserId: {UserId}",
+                    statement.StatementId, statement.UserId);
             }
-            catch (Exception ex)
+            catch (CosmosException ex)
             {
-                _logger.LogError(ex, "Failed to save statement: {StatementId}", statement.StatementId);
+                _logger.LogError(ex, "Error upserting statement: {StatementId} for UserId: {UserId}",
+                    statement.StatementId ?? "null", statement.UserId ?? "null");
+                throw;
+            }
+        }
+
+        public async Task SaveRawStatementAsync(string json)
+        {
+            try
+            {
+                var partitionKey = new PartitionKeyBuilder()
+                    .Add("1")
+                    .Add("s3")
+                    .Build();
+
+                var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+                await _statementContainer.UpsertItemStreamAsync(stream, partitionKey);
+                _logger.LogInformation("Raw statement upserted: {Json}", json);
+            }
+            catch (CosmosException ex)
+            {
+                _logger.LogError(ex, "Error upserting raw statement: {Json}", json);
                 throw;
             }
         }
