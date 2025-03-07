@@ -1,8 +1,10 @@
 ﻿using Amazon.Auth.AccessControlPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
+using Newtonsoft.Json;
 using PersonalFinanceTracker.Common.Interfaces;
 using PersonalFinanceTracker.Common.Models;
+using System.Diagnostics;
 using System.Net;
 using System.Text.Json.Serialization;
 
@@ -40,36 +42,11 @@ namespace PersonalFinanceTracker.AzureApi.Controllers
             return Ok(statements);
         }
 
-        [HttpPost("raw")]
-        public async Task<IActionResult> SubmitRawStatement([FromBody] JsonRequest request)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(request.Json))
-                    return BadRequest("JSON content is required");
-
-                _logger.LogInformation("Raw request: {Json}", request.Json);
-                await _cosmosDbService.SaveRawStatementAsync(request.Json);
-                return Ok("Raw statement saved");
-            }
-            catch (CosmosException ex)
-            {
-                _logger.LogError(ex, "Cosmos error with raw JSON: {Json}", request.Json);
-                return StatusCode((int)ex.StatusCode, ex.Message);
-            }
-        }
-
-        public class JsonRequest
-        {
-            [JsonPropertyName("json")]
-            public string Json { get; set; }
-        }
-
-
         [HttpPost]
         public async Task<IActionResult> SubmitStatement([FromBody] Common.Models.Statement statement)
         {
-            if(statement == null || string.IsNullOrEmpty(statement.UserId) || string.IsNullOrEmpty(statement.StatementId))
+            Debug.WriteLine("Received raw: " + JsonConvert.SerializeObject(statement));
+            if (statement == null || string.IsNullOrEmpty(statement.UserId) || string.IsNullOrEmpty(statement.StatementId))
             {
                 return BadRequest("Statement must include UserId and StatementId");
             }

@@ -11,16 +11,16 @@ namespace PersonalFinanceTracker.Common.Models
 {
     public class User
     {
-        [JsonPropertyName("userId")] // Maps to Cosmos DB's "id" field
+        [JsonProperty("userId")] // Maps to Cosmos DB's "id" field
         public string UserId { get; set; }
 
-        [JsonPropertyName("username")]
+        [JsonProperty("username")]
         public string Username { get; set; }
 
-        [JsonPropertyName("email")]
+        [JsonProperty("email")]
         public string Email { get; set; }
 
-        [JsonPropertyName("password")]
+        [JsonProperty("password")]
         public string Password { get; set; }
     }
 }

@@ -87,13 +87,19 @@ namespace PersonalFinanceTracker.Backend.Services
 
         public async Task<Statement?> SubmitStatementAsync(Statement statement)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/statement", statement);
+            var json = JsonConvert.SerializeObject(statement);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            Debug.WriteLine("Sending to API: " + json);
+            var response = await _httpClient.PostAsync("api/statement", content);
             if (!response.IsSuccessStatusCode)
             {
+                var error = await response.Content.ReadAsStringAsync();
+                Debug.WriteLine("POST failed: {Error}", error);
                 return null;
             }
-            var content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<Statement>(content);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            Debug.WriteLine("Response: " + responseContent);
+            return JsonConvert.DeserializeObject<Statement>(responseContent);
         }
 
         public async Task<IEnumerable<Statement?>> GetStatementsAsync(string userId, DateTime? startDate = null, DateTime? endDate = null)

@@ -340,7 +340,7 @@ namespace PersonalFinanceTracker.ViewModels
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error saving income statement: {ex.Message}");
+                Debug.WriteLine($"Error saving income statement: {ex.Message}");
             }
         }
 

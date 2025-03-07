@@ -7,6 +7,7 @@ using BCrypt.Net;
 using System.Text.Json;
 using System.Diagnostics;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace PersonalFinanceTracker.AzureApi.Services
 {
@@ -53,12 +54,17 @@ namespace PersonalFinanceTracker.AzureApi.Services
             if (startDate.HasValue)
             {
                 queryText += " AND c.Date >= @startDate";
-                parameters.Add("@startDate", startDate.Value.ToString("yyyy-MM-ddTHH:mm:ssZ"));
+                // Use offset format to match Cosmos
+                parameters.Add("@startDate", startDate.Value.ToString("yyyy-MM-ddTHH:mm:ss.fffffffzzz"));
+                _logger.LogInformation("StartDate filter: {StartDate}", parameters["@startDate"]);
             }
             if (endDate.HasValue)
             {
                 queryText += " AND c.Date <= @endDate";
-                parameters.Add("@endDate", endDate.Value.ToString("yyyy-MM-ddTHH:mm:ssZ"));
+                // End of day: 23:59:59.9999999
+                var endOfDay = endDate.Value.Date.AddHours(23).AddMinutes(59).AddSeconds(59).AddTicks(9999999);
+                parameters.Add("@endDate", endOfDay.ToString("yyyy-MM-ddTHH:mm:ss.fffffffzzz"));
+                _logger.LogInformation("EndDate filter: {EndDate}", parameters["@endDate"]);
             }
 
             var query = new QueryDefinition(queryText);
@@ -75,7 +81,7 @@ namespace PersonalFinanceTracker.AzureApi.Services
                 while (iterator.HasMoreResults)
                 {
                     var response = await iterator.ReadNextAsync();
-                    _logger.LogInformation("Retrieved batch: {Batch}", JsonSerializer.Serialize(response));
+                    _logger.LogInformation("Retrieved batch: {Batch}", System.Text.Json.JsonSerializer.Serialize(response));
                     statements.AddRange(response);
                 }
                 _logger.LogInformation("Found {Count} statements for UserId: {UserId}", statements.Count, userId);
@@ -116,6 +122,7 @@ namespace PersonalFinanceTracker.AzureApi.Services
 
         public async Task SaveStatementAsync(Statement statement)
         {
+            _logger.LogInformation("Target container: {ContainerId}", _statementContainer.Id);
             try
             {
                 if (string.IsNullOrEmpty(statement.UserId) || string.IsNullOrEmpty(statement.StatementId))
@@ -126,42 +133,27 @@ namespace PersonalFinanceTracker.AzureApi.Services
                 }
 
                 var partitionKey = new PartitionKeyBuilder()
-                    .Add("1")
-                    .Add("s4")
+                    .Add(statement.UserId)
+                    .Add(statement.StatementId)
                     .Build();
+                _logger.LogInformation("Raw PartitionKey: {PK}", partitionKey.ToString());
 
-                var json = JsonSerializer.Serialize(statement);
+                var json = System.Text.Json.JsonSerializer.Serialize(statement);
                 _logger.LogInformation("Saving statement: {Json}, PartitionKey: [{UserId}, {StatementId}]",
                     json, statement.UserId, statement.StatementId);
 
                 await _statementContainer.UpsertItemAsync(statement, partitionKey);
                 _logger.LogInformation("Statement upserted: {StatementId} for UserId: {UserId}",
                     statement.StatementId, statement.UserId);
+
+                var cosmosResponse = await _statementContainer.UpsertItemAsync(statement, partitionKey);
+                _logger.LogInformation("Statement upserted: {StatementId} for UserId: {UserId}, RU: {RU}, Resource: {Resource}",
+                    statement.StatementId, statement.UserId, cosmosResponse.RequestCharge, JsonConvert.SerializeObject(cosmosResponse.Resource));
             }
             catch (CosmosException ex)
             {
                 _logger.LogError(ex, "Error upserting statement: {StatementId} for UserId: {UserId}",
                     statement.StatementId ?? "null", statement.UserId ?? "null");
-                throw;
-            }
-        }
-
-        public async Task SaveRawStatementAsync(string json)
-        {
-            try
-            {
-                var partitionKey = new PartitionKeyBuilder()
-                    .Add("1")
-                    .Add("s3")
-                    .Build();
-
-                var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-                await _statementContainer.UpsertItemStreamAsync(stream, partitionKey);
-                _logger.LogInformation("Raw statement upserted: {Json}", json);
-            }
-            catch (CosmosException ex)
-            {
-                _logger.LogError(ex, "Error upserting raw statement: {Json}", json);
                 throw;
             }
         }
@@ -185,6 +177,11 @@ namespace PersonalFinanceTracker.AzureApi.Services
                 UserFound = true,
                 PasswordMatch = passwordMatch
             };
+        }
+
+        public Task SaveRawStatementAsync(string json)
+        {
+            throw new NotImplementedException();
         }
     }
 }
