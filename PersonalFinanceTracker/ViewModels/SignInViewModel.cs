@@ -29,8 +29,6 @@ namespace PersonalFinanceTracker.ViewModels
         private bool _isUpdating = false;
         private bool _isSigningIn; // Prevent double calls
 
-        private readonly IUserRepository _userRepository; // To help with user(model) and database interactions
-
         private readonly INavigationService _navigationService; // To help with window navigation
 
         private readonly IPFTDialogService _dialogService; // For any pop up dialog
@@ -105,12 +103,11 @@ namespace PersonalFinanceTracker.ViewModels
             }
         }
 
-        public SignInViewModel(IUserRepository userRepository, INavigationService navigationService, IPFTDialogService dialogService, IUserSessionService userSessionService, IApiClient apiClient)
+        public SignInViewModel(INavigationService navigationService, IPFTDialogService dialogService, IUserSessionService userSessionService, IApiClient apiClient)
         {
             Debug.WriteLine("SignInViewModel constructor called");
             _apiClient = apiClient;
             _userSessionService = userSessionService;
-            _userRepository = userRepository;
             _navigationService = navigationService;
             _dialogService = dialogService;
 
@@ -123,12 +120,13 @@ namespace PersonalFinanceTracker.ViewModels
             // When the Sign In button is clicked...
             SignInCommand = new RelayCommand(async () => await SignInAsync());
 
+            // When the eye icon is clicked...
             TogglePasswordVisibilityCommand = new RelayCommand<Button>(TogglePasswordVisibility);
-            _navigationService = navigationService;
         }
 
         private void HandlePasswordChanged(object parameter)
         {
+            // Extract the PasswordBox and TextBox from the parameter
             if (parameter is object[] values && values.Length == 2)
             {
                 var passwordBox = values[0] as PasswordBox;
@@ -136,7 +134,7 @@ namespace PersonalFinanceTracker.ViewModels
 
                 if (textBox != null && passwordBox != null)
                 {
-                    if (_isUpdating) return;
+                    if (_isUpdating) return; // Prevent infinite loop
                     _isUpdating = true;
 
                     if (passwordBox.IsFocused)
@@ -208,12 +206,10 @@ namespace PersonalFinanceTracker.ViewModels
 
                 if (!_valid) return false; // Stop if basic validation fails
 
-                //var user = await _userRepository.GetUserByUsernameAsync(Username); aws direct connection
-                //var user = await _apiClient.SignInAsync(Username, Password);
+                // Call the API to sign in
                 var (user, error) = await _apiClient.SignInAsync(Username, Password);
                 if (user == null)
                 {
-                    Console.WriteLine("User is null - invalid credentials?");
                     UsernameError = "Username not found.";
                     return false;
                 }
@@ -232,6 +228,7 @@ namespace PersonalFinanceTracker.ViewModels
             }
             finally
             {
+                // Reset the signing in flag
                 ((RelayCommand)SignInCommand).RaiseCanExecuteChanged();
                 _isSigningIn = false;
             }

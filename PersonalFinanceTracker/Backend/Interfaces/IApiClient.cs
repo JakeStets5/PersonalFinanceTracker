@@ -9,6 +9,7 @@ namespace PersonalFinanceTracker.Backend.Interfaces
 {
     public interface IApiClient
     {
+        public Task<User?> CreateUserAsync(User user);
         public Task<User?> GetUserAsync(string username);
         public Task<(User? User, string? Error)> SignInAsync(string username, string password);
         public Task<Statement?> SubmitStatementAsync(Statement statement);

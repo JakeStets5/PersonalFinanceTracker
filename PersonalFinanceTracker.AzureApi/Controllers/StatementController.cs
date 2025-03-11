@@ -1,20 +1,15 @@
-﻿using Amazon.Auth.AccessControlPolicy;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
-using Newtonsoft.Json;
 using PersonalFinanceTracker.Common.Interfaces;
-using PersonalFinanceTracker.Common.Models;
-using System.Diagnostics;
 using System.Net;
-using System.Text.Json.Serialization;
 
 namespace PersonalFinanceTracker.AzureApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]")] // Route: /api/statements
     [ApiController]
     public class StatementController : ControllerBase
     {
-        private readonly ICloudDbService _cosmosDbService;
+        private readonly ICloudDbService _cosmosDbService; // Service for Cosmos DB operations
         private readonly ILogger<StatementController> _logger;
 
         public StatementController(ICloudDbService cloudDbService, ILogger<StatementController> logger)
@@ -23,14 +18,35 @@ namespace PersonalFinanceTracker.AzureApi.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
+        /// <summary>
+        /// Retrieves statements for a specified user, optionally filtered by date range.
+        /// </summary>
+        /// <param name="userId">The ID of the user whose statements are retrieved. Required.</param>
+        /// <param name="startDate">Optional start date for filtering statements (inclusive). Format: ISO 8601 (e.g., 2025-02-06T00:00:00-07:00).</param>
+        /// <param name="endDate">Optional end date for filtering statements (inclusive, end of day). Format: ISO 8601 (e.g., 2025-03-06T23:59:59-07:00).</param>
+        /// <returns>
+        /// An <see cref="IActionResult"/> containing the statements as JSON if found.
+        /// <list type="bullet">
+        ///   <item><description>200 OK: Returns <see cref="IEnumerable{Statement}"/> with statements.</description></item>
+        ///   <item><description>400 Bad Request: If <paramref name="userId"/> is missing or empty.</description></item>
+        ///   <item><description>404 Not Found: If no statements are found for the user.</description></item>
+        /// </list>
+        /// </returns>
+        /// <exception cref="Exception">Thrown by the underlying service if the query fails, logged internally.</exception>
+        /// <remarks>
+        /// GET /api/statements?userId={userId}&startDate={startDate}&endDate={endDate}
+        /// Uses Cosmos DB hierarchical partition key (/UserId, /StatementId). Logs results or warnings.
+        /// </remarks>
+        [HttpGet] // Route: /api/statements
         public async Task<IActionResult> GetStatements([FromQuery] string userId, [FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null)
         {
-            if(string.IsNullOrEmpty(userId))
+            // Validate input
+            if (string.IsNullOrEmpty(userId))
             {
                 return BadRequest("UserId is required");
             }
 
+            // Fetch statements from Cosmos DB
             var statements = await _cosmosDbService.GetStatementsByUserIdAsync(userId, startDate, endDate);
             if (statements == null || !statements.Any())
             {
@@ -38,14 +54,31 @@ namespace PersonalFinanceTracker.AzureApi.Controllers
                 return NotFound();
             }
 
-            _logger.LogInformation("Retrieved {Count} statements for userId: {UserId}", statements.Count(), userId);
             return Ok(statements);
         }
 
-        [HttpPost]
+        /// <summary>
+        /// Creates a new user in Cosmos DB.
+        /// </summary>
+        /// <param name="user">The user data to create, provided in the request body. Required.</param>
+        /// <returns>
+        /// An <see cref="IActionResult"/> reflecting the result of the creation.
+        /// <list type="bullet">
+        ///   <item><description>201 Created: Returns the new <see cref="User"/> as JSON.</description></item>
+        ///   <item><description>400 Bad Request: If <paramref name="user"/> is null or invalid.</description></item>
+        ///   <item><description>409 Conflict: If the user ID already exists.</description></item>
+        ///   <item><description>500 Internal Server Error: If creation fails unexpectedly.</description></item>
+        /// </list>
+        /// </returns>
+        /// <exception cref="CosmosException">Thrown if Cosmos DB operations fail, logged and returned as status codes.</exception>
+        /// <remarks>
+        /// POST /api/users
+        /// Saves the user to the 'Users' container with partition key /UserId. Logs success or errors.
+        /// </remarks>
+        [HttpPost] // Route: /api/statements
         public async Task<IActionResult> SubmitStatement([FromBody] Common.Models.Statement statement)
         {
-            Debug.WriteLine("Received raw: " + JsonConvert.SerializeObject(statement));
+            // Validate input + presence of partition keys
             if (statement == null || string.IsNullOrEmpty(statement.UserId) || string.IsNullOrEmpty(statement.StatementId))
             {
                 return BadRequest("Statement must include UserId and StatementId");
@@ -62,9 +95,8 @@ namespace PersonalFinanceTracker.AzureApi.Controllers
 
             try
             {
+                // Save statement to Cosmos DB
                 await _cosmosDbService.SaveStatementAsync(statement);
-                _logger.LogInformation("Statement saved for UserId: {UserId}, StatementId: {StatementId}",
-                    statement.UserId, statement.StatementId);
                 return Ok(statement);
             }
             catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.Conflict)

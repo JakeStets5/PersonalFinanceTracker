@@ -1,26 +1,26 @@
-﻿using Amazon.DynamoDBv2.DataModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace PersonalFinanceTracker.Common.Models
 {
     public class User
     {
-        [JsonProperty("userId")] // Maps to Cosmos DB's "id" field
+        [JsonProperty("id")] // Maps to Cosmos DB's "id" field. Uses UserId as the property name
+        public string Id
+        {
+            get => UserId;
+            set => UserId = value;
+        } 
+
+        [JsonProperty("UserId")]
         public string UserId { get; set; }
 
-        [JsonProperty("username")]
+        [JsonProperty("Username")]
         public string Username { get; set; }
 
-        [JsonProperty("email")]
+        [JsonProperty("Email")]
         public string Email { get; set; }
 
-        [JsonProperty("password")]
+        [JsonProperty("Password")]
         public string Password { get; set; }
     }
 }

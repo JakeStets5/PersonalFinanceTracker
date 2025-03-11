@@ -45,9 +45,6 @@ namespace PersonalFinanceTracker.ViewModels
 
         private void OnUploadTransaction()
         {
-            // Navigation or backend logic goes here!
-            // Example: Navigate to the Upload Transaction View
-
             Application.Current.Dispatcher.BeginInvoke(() =>
             {
                 if (_regionManager.Regions.ContainsRegionWithName("MainRegion"))
@@ -59,7 +56,6 @@ namespace PersonalFinanceTracker.ViewModels
                     Debug.WriteLine("MainRegion is still not registered!");
                 }
             });
-
         }
     }
 }

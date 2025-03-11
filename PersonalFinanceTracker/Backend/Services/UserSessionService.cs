@@ -1,17 +1,10 @@
 ﻿using PersonalFinanceTracker.Backend.Interfaces;
 using PersonalFinanceTracker.Common.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PersonalFinanceTracker.Backend.Services
 {
     public class UserSessionService : IUserSessionService
     {
-        
-
         public event Action<User?>? UserSignedIn;
         public string UserId { get; private set; }
         public string Username { get; private set; }
@@ -30,7 +23,6 @@ namespace PersonalFinanceTracker.Backend.Services
 
         public void SetUser(string userId, string username)
         {
-            Console.WriteLine($"SetUser called with userId={userId}, username={username}");
             UserId = userId ?? throw new ArgumentNullException(nameof(userId));
             Username = username ?? throw new ArgumentNullException(nameof(username));
             CurrentUser = new User { UserId = userId, Username = username };
@@ -40,6 +32,5 @@ namespace PersonalFinanceTracker.Backend.Services
         {
             CurrentUser = null;
         }
-
     }
 }

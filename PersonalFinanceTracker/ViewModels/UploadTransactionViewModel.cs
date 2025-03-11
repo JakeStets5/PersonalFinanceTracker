@@ -1,28 +1,15 @@
 ﻿using PersonalFinanceTracker.Backend.Commands;
 using PersonalFinanceTracker.Backend.Interfaces;
-using PersonalFinanceTracker.Common.Interfaces;
 using PersonalFinanceTracker.Common.Models;
-//using PersonalFinanceTracker.Backend.Models;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using LiveCharts;
 using LiveCharts.Wpf;
 using System.Windows;
 using System.Windows.Input;
-using Microsoft.AspNetCore.Hosting.Server;
-using PersonalFinanceTracker.Backend.Services;
 using System.Diagnostics;
-using Unity;
 using System.Windows.Media;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Amazon.Auth.AccessControlPolicy;
-using System.Text.Json;
 
 namespace PersonalFinanceTracker.ViewModels
 {
@@ -218,6 +205,7 @@ namespace PersonalFinanceTracker.ViewModels
             }
         }
 
+        // Populates the income pie charts
         private SeriesCollection _incomeSeries;
         public SeriesCollection IncomeSeries
         {
@@ -229,6 +217,7 @@ namespace PersonalFinanceTracker.ViewModels
             }
         }
 
+        // Populates the expense pie charts
         private SeriesCollection _expenseSeries;
         public SeriesCollection ExpenseSeries
         {
@@ -259,26 +248,22 @@ namespace PersonalFinanceTracker.ViewModels
         public ObservableCollection<string> IncomeTemplates { get; set; } = new ObservableCollection<string>();
         public ObservableCollection<string> ExpenseTemplates { get; set; } = new ObservableCollection<string>();
 
-        public ICommand AddIncomeStatementCommand { get; }
-        public ICommand SaveIncomeTemplateCommand { get; }
-        public ICommand AddExpenseStatementCommand { get; }
-        public ICommand SaveExpenseTemplateCommand { get; }
-        public ICommand SignInCommand { get; }
-        public ICommand RefreshCommand { get; }
+        public ICommand AddIncomeStatementCommand { get; } // Triggered on AddIncomeStatement button click
+        public ICommand SaveIncomeTemplateCommand { get; } // Triggered on SaveIncomeTemplateCommand button click
+        public ICommand AddExpenseStatementCommand { get; } // Triggered on AddExpenseStatementCommand button click
+        public ICommand SaveExpenseTemplateCommand { get; } // Triggered on SaveExpenseTemplateCommand button click
+        public ICommand SignInCommand { get; } // Triggered on SignInCommand button click
+        public ICommand RefreshCommand { get; } // Triggered on RefreshCommand button click
 
-        private readonly ICloudDbService _dynamoDbService;
-        private readonly IUserSessionService _userSessionService;
-        private readonly IFinancialDataService _financialDataService;
-        private readonly INavigationService _navigationService;
-        private readonly IApiClient _apiClient;
+        private readonly IUserSessionService _userSessionService; // Keeps the user signed in 
+        private readonly INavigationService _navigationService; // Handles navigation between windows. Including pop-ups
+        private readonly IApiClient _apiClient; // Handles the API connection 
 
-        public UploadTransactionViewModel(ICloudDbService dbService, IUserSessionService userSessionService, IFinancialDataService financialDataService, INavigationService navigationService, IApiClient apiClient)
+        public UploadTransactionViewModel(IUserSessionService userSessionService,INavigationService navigationService, IApiClient apiClient)
         {
             _apiClient = apiClient;
-            _navigationService = navigationService;
-            _financialDataService = financialDataService;   
+            _navigationService = navigationService;   
             _userSessionService = userSessionService;
-            _dynamoDbService = dbService;
 
             AddIncomeStatementCommand = new RelayCommand(AddIncomeStatement);
             SaveIncomeTemplateCommand = new RelayCommand(SaveIncomeTemplate);
@@ -287,7 +272,7 @@ namespace PersonalFinanceTracker.ViewModels
             SignInCommand = new RelayCommand(SignIn);
             RefreshCommand = new RelayCommand(Refresh);
 
-            _userSessionService.UserSignedIn += OnUserSignedIn;
+            _userSessionService.UserSignedIn += OnUserSignedIn; // Subscribes to the user sign in event. Starts API call
 
             _startDate = DateTime.Today.AddMonths(-1); // Default: One month ago
             _endDate = DateTime.Today;
@@ -297,7 +282,7 @@ namespace PersonalFinanceTracker.ViewModels
         {
             IsUserSignedIn = true;
             CurrentUser = user;
-            await LoadStatementsAsync();
+            await LoadStatementsAsync();// Begins the API call to query cloud db
         }
         public void Dispose()
         {
@@ -310,17 +295,19 @@ namespace PersonalFinanceTracker.ViewModels
             await LoadStatementsAsync();
         }
 
+        // Starts the call to add an income statement to the API
         private async void AddIncomeStatement()
         {
+            // Verifies user login
             if(!_userSessionService.IsUserLoggedIn)
             {
                 MessageBox.Show("You must be signed in to add a statement.");
                 return;
             }
 
-            var statement = new Common.Models.Statement
+            var statement = new Statement
             {
-                UserId = _userSessionService.UserId,
+                UserId = _userSessionService.UserId, // Keeping userId(partition key) consistent across all statements saved
                 StatementId = Guid.NewGuid().ToString(),
                 Type = "Income",
                 Amount = decimal.Parse(IncomeAmount),
@@ -332,7 +319,7 @@ namespace PersonalFinanceTracker.ViewModels
 
             try
             {
-                var result = await _apiClient.SubmitStatementAsync(statement);
+                var result = await _apiClient.SubmitStatementAsync(statement); // 
                 if (result != null)
                 {
                     await LoadStatementsAsync();
@@ -362,7 +349,7 @@ namespace PersonalFinanceTracker.ViewModels
                 return;
             }
 
-            var statement = new Common.Models.Statement
+            var statement = new Statement
             {
                 UserId = _userSessionService.UserId,
                 StatementId = Guid.NewGuid().ToString(),
@@ -415,6 +402,7 @@ namespace PersonalFinanceTracker.ViewModels
 
         private async Task LoadStatementsAsync()
         {
+            // Verifies user login
             if (!_userSessionService.IsUserLoggedIn)
             {
                 IsUserSignedIn = false;
@@ -423,8 +411,9 @@ namespace PersonalFinanceTracker.ViewModels
 
             var userId = _userSessionService.UserId;
 
+            // Calls the client (object holding the connection) to begin cosmos (or cloud provider) statement query by userId.
+            // Matches stored in statements
             var statements = await _apiClient.GetStatementsAsync(userId, StartDate, EndDate);
-            Debug.WriteLine("Client statements: {Statements}", JsonSerializer.Serialize(statements));
             if (statements == null || !statements.Any())
             {
                 Debug.WriteLine("No statements to process.");

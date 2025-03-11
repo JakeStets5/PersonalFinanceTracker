@@ -326,7 +326,7 @@
 
                 <!-- Text Box (visible password) -->
                 <TextBox x:Name="ConfirmPasswordTextBox" 
-                         Text="{Binding TempConfirmPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Text="{Binding ConfirmTempPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
 						 Visibility="{Binding IsConfirmPasswordVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="TextChanged">

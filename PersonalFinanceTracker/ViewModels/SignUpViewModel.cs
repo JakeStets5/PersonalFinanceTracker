@@ -1,16 +1,9 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using PersonalFinanceTracker.Common.Models;
 using System.Windows.Controls;
-using System.Windows;
-using System.Windows.Threading;
-using System.Reflection.Metadata;
-using PersonalFinanceTracker.Views;
 using System.Windows.Media.Imaging;
-using BCrypt.Net;
 using PersonalFinanceTracker.Backend.Interfaces;
 using PersonalFinanceTracker.Backend.Commands;
 using System.Runtime.CompilerServices;
@@ -19,8 +12,8 @@ namespace PersonalFinanceTracker.ViewModels
 {
     public class SignUpViewModel : INotifyPropertyChanged
     {
-        private readonly IUserRepository _userRepository;
         private readonly IPFTDialogService _dialogService;
+        private readonly IApiClient _apiClient;
 
         private string _username = "";
         private string _usernameError = "";
@@ -41,14 +34,13 @@ namespace PersonalFinanceTracker.ViewModels
         public bool IsConfirmPasswordPlaceholderVisible => string.IsNullOrEmpty(ConfirmPassword); // To make the placeholder text for confirm password vanish
         public char PasswordMaskChar => IsPasswordVisible ? '\0' : '●';
 
-
         public event PropertyChangedEventHandler? PropertyChanged;
         public event Action? OnSignUpCompleted; // Event that notifies of completion
 
-        public SignUpViewModel(IUserRepository userRepository, IPFTDialogService dialogService)
+        public SignUpViewModel(IPFTDialogService dialogService, IApiClient apiClient)
         {
             _dialogService = dialogService;
-            _userRepository = userRepository;
+            _apiClient = apiClient;
 
             // When the sign up button is clicked...
             SignUpCommand = new RelayCommand(async () => await SignUpAsync());
@@ -61,7 +53,6 @@ namespace PersonalFinanceTracker.ViewModels
 
             // When either password is changed...
             PasswordChangedCommand = new RelayCommand<object>(parameter => HandlePasswordChanged(parameter));
-            _dialogService = dialogService;
         }
 
         // Commands
@@ -168,6 +159,7 @@ namespace PersonalFinanceTracker.ViewModels
         // Method to handle when the user updates the password fields
         private void HandlePasswordChanged(object parameter)
         {
+            // Ensure the parameter is an object array with the correct number of elements
             if (parameter is object[] values && values.Length == 3)
             {
                 var passwordBox = values[0] as PasswordBox;
@@ -176,28 +168,23 @@ namespace PersonalFinanceTracker.ViewModels
 
                 if (passwordBox == null || textBox == null || string.IsNullOrEmpty(identifier)) return;
 
-                if (_isUpdating) return;
+                if (_isUpdating) return; // Prevent infinite loop
                 _isUpdating = true;
 
                 if (passwordBox.IsFocused)
                 {
-                    if (identifier == "MainPassword")
-                        Password = passwordBox.Password;
-                    else if (identifier == "ConfirmPassword")
-                        ConfirmPassword = passwordBox.Password;
+                    if (identifier == "MainPassword") Password = passwordBox.Password;
+                    else if (identifier == "ConfirmPassword") ConfirmPassword = passwordBox.Password;
 
                     textBox.Text = passwordBox.Password; // Manually sync to TextBox
                 }
                 else if (textBox.IsFocused)
                 {
-                    if (identifier == "MainPassword")
-                        Password = textBox.Text;
-                    else if (identifier == "ConfirmPassword")
-                        ConfirmPassword = textBox.Text;
+                    if (identifier == "MainPassword") Password = textBox.Text;
+                    else if (identifier == "ConfirmPassword") ConfirmPassword = textBox.Text;
 
                     passwordBox.Password = textBox.Text; // Manually sync to PasswordBox
                 }
-
                 _isUpdating = false;
             }
         }
@@ -209,22 +196,22 @@ namespace PersonalFinanceTracker.ViewModels
             // Validate the username field
             if (string.IsNullOrWhiteSpace(Username))
                 UsernameError = "Please enter a username.";
-            else if (await _userRepository.UserExistsAsync(Username))
-                UsernameError = "Username already exists."; // Error if the username already exists in the database
+            //else if (await _userRepository.UserExistsAsync(Username))
+            //    UsernameError = "Username already exists."; // Error if the username already exists in the database
             else
-                UsernameError = string.Empty;  // No error if validation passes
+                UsernameError = string.Empty;
 
-            _valid &= UsernameError == string.Empty;  // Update 'valid' based on username validation
+            _valid &= UsernameError == string.Empty; // Update 'valid' based on username validation
 
             // Validate the email field
             if (string.IsNullOrWhiteSpace(Email)) 
                 EmailError = "Please enter an email address";
             else if(!IsValidEmail(Email))
-                EmailError = "Please enter a valid email address."; // Error if email format is wrong
+                EmailError = "Please enter a valid email address.";
             else
                 EmailError = string.Empty;
 
-            _valid &= EmailError == string.Empty;  // Update 'valid' based on email validation
+            _valid &= EmailError == string.Empty; // Update 'valid' based on email validation
 
             // Validate the password field
             if (string.IsNullOrWhiteSpace(Password))
@@ -232,38 +219,33 @@ namespace PersonalFinanceTracker.ViewModels
             else if (!ValidatePassword(Password))
                 PasswordError = "Password must be at least 8 characters, include a number, uppercase letter, and special character.";
             else
-                PasswordError = string.Empty;  // No error if the password meets security criteria
+                PasswordError = string.Empty;
 
-            _valid &= PasswordError == string.Empty;  // Update 'valid' based on password validation
+            _valid &= PasswordError == string.Empty; // Update 'valid' based on password validation
 
             // Validate the confirm password field
             if (string.IsNullOrWhiteSpace(ConfirmPassword))
                 ConfirmPasswordError = "Please confirm your password";
             else if (Password != ConfirmPassword)
-                ConfirmPasswordError = "Passwords do not match.";  // Error if passwords do not match
+                ConfirmPasswordError = "Passwords do not match.";
             else
-                ConfirmPasswordError = string.Empty;  // No error if the passwords match
+                ConfirmPasswordError = string.Empty;
 
-            _valid &= ConfirmPasswordError == string.Empty;  // Update 'valid' based on confirm password validation
+            _valid &= ConfirmPasswordError == string.Empty; // Update 'valid' based on confirm password validation
 
             // If all validations pass, create a new user and add them to the database
             if (_valid)
             {
-                // Hash the password using BCrypt for security
-                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(Password);
-
-                string userId = Guid.NewGuid().ToString();  // Generate a unique user ID
-                // Create a new User object with provided data
-                var user = new User { UserId = userId, Username = Username, Email = Email, Password = hashedPassword };
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(Password); // Hash the password
+                var user = new User { Id = Guid.NewGuid().ToString(), UserId = Guid.NewGuid().ToString(), Username = Username, Email = Email, Password = hashedPassword };
 
                 // Asynchronously save the user to the repository
                 try
                 {
-                    await _userRepository.AddUserAsync(user);
+                    var result = await _apiClient.CreateUserAsync(user);
                 }
                 catch (Exception ex)
                 {
-                    // Handle errors if needed
                     Console.WriteLine(ex.Message);
                 }
 
